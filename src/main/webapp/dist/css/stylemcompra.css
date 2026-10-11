@@ -1,0 +1,130 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+img{
+    max-width: 100%;
+}
+a{
+    text-decoration: none;
+    color: black;
+}
+ul{
+    list-style: none;
+    padding: 0; 
+    margin: 0;
+}
+body{
+    background-color:#ffffff;
+}
+
+/*-------MODULO COMPRA--------*/
+
+.header-h1{
+    padding: 7px;
+    text-align: center;
+    border-bottom-left-radius: 60px;
+    border-bottom-right-radius: 60px;
+    margin-bottom: 10px;
+    background-color: #4b70dd;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.contain-header-div{
+    display: grid;
+    grid-template-columns: 35% 35% 30%;
+    background-color: #4b70dd;
+    padding: 15px 5px 15px 5px;
+}
+.header-div{
+    padding: 5px;
+    padding-left: 15px;
+}
+.header-div input{
+    border-radius: 10px;
+    border:2px solid black;
+    text-align: center;
+}
+.header-div__h6{
+    display: inline;
+    font-style: italic;
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+.contain-grids{
+    display: grid;
+    grid-template-columns: 35% 65%;
+}
+
+.contain-grids__solicitud, .contain-grids__tabla{
+    padding: 20px;
+}
+
+.contain-grids__title{
+    padding: 10px;
+    background-color: #4b70dd;
+    border:2px solid black;
+    text-align: center;
+}
+.contain-grids__title h5{
+    text-shadow: #0e534f;
+    font-weight: bold;
+}
+.contain-grids__use{
+    border:2px solid black;
+    padding: 20px;
+}
+
+#proveedores-container, #productos-container{
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.buttons-options{
+    margin-top: 45px;
+    text-align: center;
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.buttons-options a, .contain-grids__tabla button, .form-buttons a{
+    color: black;
+    border: none;
+    background-color: #4b70dd;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.form-buttons{
+    margin-top: 20px;
+}
+.table-use {
+    border-collapse: collapse;
+    width: 100%;
+}
+.styled-table {
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    overflow: hidden;
+}
+.styled-table th,
+.styled-table td {
+    padding: 10px;
+    text-align: left;
+}
+.styled-table tbody tr:nth-child(even) {
+    background-color: #4b70dd;
+}
+.styled-table th {
+    background-color: #0e534f;
+    color: white;
+}
+
+.styled-table tbody tr:hover {
+    background-color: #a9aab1;
+}
