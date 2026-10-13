@@ -24,14 +24,15 @@ public class BusinessRegistroReserva {
         return rreservaDAO.actualizar(obj);
     }
 
-    public RegistroReserva registroReservaDiario(Turno turno) {
+    public RegistroReserva registroReservaDiario(Turno turno, int empleadoId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime fechaHoraActual = LocalDateTime.now();
         String fecha = fechaHoraActual.format(formatter);
 
         List<RegistroReserva> listado = this.listado();
         for (RegistroReserva rc : listado) {
-            if (rc.getFecha().equals(fecha) && rc.getTurno().equals(turno)) {
+            if (rc.getFecha().equals(fecha) && rc.getTurno().equals(turno)
+                    && rc.getEmpleado().getId() == empleadoId) {
                 return rc;
             }
         }

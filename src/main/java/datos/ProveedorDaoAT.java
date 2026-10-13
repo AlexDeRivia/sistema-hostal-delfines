@@ -5,6 +5,7 @@ import dominio.Proveedor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -20,6 +21,7 @@ public class ProveedorDaoAT extends Dao<Proveedor>{
             // Obtener los atributos del proveedor
             int nuevoId = obtenerUltimoId() + 1;
             int id = nuevoId;
+            obj.setId(id);
             String razonSocial = obj.getRazonSocial();
             String ruc = obj.getRuc();
 
@@ -32,7 +34,7 @@ public class ProveedorDaoAT extends Dao<Proveedor>{
 
             bw.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
         return obj;
     }

@@ -26,9 +26,9 @@ public class SvProducto extends HttpServlet {
         
         List<Producto> productos = new BusinessProducto().listado();
         request.setAttribute("productos", productos);
-        request.getRequestDispatcher("VistaModuloProducto.jsp").forward(request, response);
         request.setAttribute("turno", this.obtenerTurno());
         request.setAttribute("fecha", this.obtenerFecha());
+        request.getRequestDispatcher("VistaModuloProducto.jsp").forward(request, response);
     }
     
     public String obtenerTurno(){

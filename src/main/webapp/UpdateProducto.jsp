@@ -1,50 +1,10 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<link rel="stylesheet" type="text/css" href="dist/css/styles.css"/>
-<script type="text/javascript" src="dist/js/funtions.js"/></script>
-
-<form class="miform" name="formReserva" action="${pageContext.request.contextPath}/SvUpdateProducto?accion=update" method="post" id="clearReserva">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-    <h1>ACTUALIZAR PRODUCTO</h1>
-
-    <label for="producto_id">ID:</label>
-    <input type="text" id="producto_id" name="producto_id" required value="${producto.id}">
-    <br>
-
-    <label for="producto_name">Producto:</label>
-    <input type="text" id="producto_name" name="producto_name" value ="<c:out value='${producto.nombre}'/>">
-    <br>
-
-    <label for="pventa">Precio Venta:</label>
-    <input type="text" id="pventa" name="pventa" value ="${producto.precioVenta}">
-    <br>
-
-    <label for="pcompra">Precio Compra:</label>
-    <input type="text" id="pcompra" name="pcompra" value ="${producto.precioCompra}">
-    <br>
-
-    <label for="categoriaStatus">Categoria:</label>
-    <select id="categoriaStatus" name="categoriaStatus" required>
-        <c:forEach var="categoria" items="${categorias}">
-            <c:choose>
-                <c:when test="${categoria eq producto.categoria}">
-                    <option value="${categoria}" selected>${producto.categoria}</option>
-                </c:when>
-                <c:otherwise>
-                    <option value="${categoria}">${categoria}</option>
-                </c:otherwise>
-            </c:choose>
-        </c:forEach>
-    </select>
-    <br>
-
-    <input type="submit" value="Actualizar">
-    <button type="button" class="cancel" onclick="cancelUpdate()">Cancelar</button>
-</form>
+<header class="page-header"><div><span class="page-kicker">Inventario · Edición</span><h1>Editar producto</h1><p>Actualiza los datos del producto seleccionado.</p></div><div class="page-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvProducto"><i class="fas fa-arrow-left"></i> Volver</a></div></header>
+<c:if test="${not empty error}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${error}"/></span></div></c:if>
+<section class="form-surface" style="max-width:880px"><div class="kicker-line"></div><form action="${pageContext.request.contextPath}/SvUpdateProducto?accion=update" method="post"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><div class="form-grid"><div class="field"><label for="producto_id">ID</label><input id="producto_id" name="producto_id" type="text" value="${producto.id}" readonly></div><div class="field"><label for="producto_name">Nombre</label><input id="producto_name" name="producto_name" type="text" value="<c:out value='${producto.nombre}'/>" required></div><div class="field"><label for="pventa">Precio de venta · S/</label><input id="pventa" name="pventa" type="number" min="0.01" step="0.01" value="${producto.precioVenta}" required></div><div class="field"><label for="pcompra">Precio de compra · S/</label><input id="pcompra" name="pcompra" type="number" min="0.01" step="0.01" value="${producto.precioCompra}" required></div><div class="field span-2"><label for="categoriaStatus">Categoría</label><select id="categoriaStatus" name="categoriaStatus" required><c:forEach var="categoria" items="${categorias}"><option value="${categoria}" ${categoria eq producto.categoria ? 'selected' : ''}>${categoria}</option></c:forEach></select></div></div><div class="form-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvProducto">Cancelar</a><button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Guardar cambios</button></div></form></section>
 <%@include file="components/footer.jsp"%>

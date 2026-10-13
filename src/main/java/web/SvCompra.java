@@ -32,14 +32,8 @@ public class SvCompra extends HttpServlet {
     private BusinessProducto productoInformation;
     private BusinessCompra compraInformation;
     private BusinessRegistroCompra rcompraInformation;
-    private Empleado empleadoSession;
 
     public SvCompra() {
-        this.empleadoSession = new Empleado();
-        empleadoSession.setId(1);
-        empleadoSession.setDni("75465361");
-        empleadoSession.setNombre("Nilton");
-        empleadoSession.setUsername("admin");
         proveedorInformation = new BusinessProveedor();
         productoInformation = new BusinessProducto();
         compraInformation = new BusinessCompra();
@@ -58,13 +52,14 @@ public class SvCompra extends HttpServlet {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
-        RegistroCompra rcompra = this.iniciarModuloCompra(false);
-        getCompra(request);
+        RegistroCompra rcompra = this.iniciarModuloCompra(false, request);
+        Compra compra = getCompra(request);
         List<Producto> productos = new BusinessProducto().listado();
         List<Proveedor> proveedores = proveedorInformation.listado();
         request.setAttribute("productos", productos);
         request.setAttribute("proveedores", proveedores);
         request.setAttribute("rcompra", rcompra);
+        request.setAttribute("totalCompra", compra.total());
         
         if (accion != null) {
             switch (accion) {
@@ -103,11 +98,11 @@ public class SvCompra extends HttpServlet {
         processRequest(request, response);
         
         String accion = request.getParameter("accion");
-        if (accion != null) {
-            switch (accion) {
+        try {
+            if (accion != null) {
+                switch (accion) {
                 case "agregar":
                     this.agregarProducto(request, response);
-                    System.out.println("Agregando");
                     break;
                 case "update":
                     this.update(request, response);
@@ -119,26 +114,31 @@ public class SvCompra extends HttpServlet {
                     this.guardar(request, response);
                     HttpSession session = request.getSession();
                     session.removeAttribute("compra");
-                    break;
+                    response.sendRedirect(request.getContextPath() + "/SvCompra?ok=guardada");
+                    return;
                 default:
                     
+                }
             }
+        } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
+            request.getSession().setAttribute("errorCompra", ex.getMessage());
         }
         response.sendRedirect(request.getContextPath() + "/SvCompra");
     }
     
-    private RegistroCompra iniciarModuloCompra(boolean guardar){
+    private RegistroCompra iniciarModuloCompra(boolean guardar, HttpServletRequest request){
         //CREACION DEL REGISTRO DE COMPRA DIARIO
         RegistroCompra rcTemp = null;
         Turno turno = Turno.valueOf(this.obtenerTurno());
-        rcTemp = rcompraInformation.registroCompraDiario(turno);
+        Empleado operador = OperadorActual.desde(request);
+        rcTemp = rcompraInformation.registroCompraDiario(turno, operador.getId());
         if(rcTemp != null){
             return rcTemp;
         }else{
             rcTemp = new RegistroCompra();
             rcTemp.setFecha(this.obtenerFecha());
             rcTemp.setTurno(turno);
-            rcTemp.setEmpleado(empleadoSession);
+            rcTemp.setEmpleado(operador);
             return guardar ? rcompraInformation.crear(rcTemp) : rcTemp;
         }
     }
@@ -156,12 +156,15 @@ public class SvCompra extends HttpServlet {
     private void agregarProducto(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         Compra compra = getCompra(request);
         //Recuperamos datos del formulario
-        String proveedor = String.valueOf(request.getParameter("proveedor_name"));
-        Proveedor pv = proveedorInformation.getProveedorByRazonSocial(proveedor);
-        String producto = String.valueOf(request.getParameter("producto_name"));
-        Producto p = productoInformation.getProductoByNombre(producto);
+        Proveedor pv = new datos.ProveedorDaoAT().buscar(Integer.parseInt(request.getParameter("proveedorId")));
+        Producto p = productoInformation.buscar(Integer.parseInt(request.getParameter("productoId")));
         int cantidad = Integer.parseInt(request.getParameter("cantidad"));
-        compra.setId(1);
+        if (pv == null || p == null || cantidad <= 0) {
+            throw new IllegalArgumentException("Selecciona proveedor, producto y cantidad válida.");
+        }
+        if (compra.getProveedor() != null && compra.getProveedor().getId() != pv.getId()) {
+            throw new IllegalArgumentException("Una compra solo puede tener un proveedor.");
+        }
         compra.setProveedor(pv);
         compra.agregarLineaCompra(new LineaCompra(cantidad, p, p.getPrecioCompra()));
         
@@ -192,13 +195,32 @@ public class SvCompra extends HttpServlet {
         Compra compra = getCompra(request);
         int lineaCompra_id = Integer.parseInt(request.getParameter("posicion"));
         int nuevaCantidad = Integer.parseInt(request.getParameter("cantidad"));
+        if (nuevaCantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
+        }
         compra.getLineaCompras().get(lineaCompra_id).setCantidad(nuevaCantidad);
     }
     
     private void guardar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         Compra compra = getCompra(request);
-        if(!compra.getLineaCompras().isEmpty()){
-            RegistroCompra rcompra = iniciarModuloCompra(true);
+        if (compra.getLineaCompras().isEmpty() || compra.getProveedor() == null) {
+            throw new IllegalArgumentException("Agrega al menos un producto a la compra.");
+        }
+        synchronized (Producto.class) {
+            java.util.Map<Integer, Long> cantidades = new java.util.HashMap<>();
+            for (LineaCompra linea : compra.getLineaCompras()) {
+                if (linea.getCantidad() <= 0 || linea.getProducto() == null) {
+                    throw new IllegalArgumentException("La compra contiene una cantidad o producto inválido.");
+                }
+                cantidades.merge(linea.getProducto().getId(), (long) linea.getCantidad(), Long::sum);
+            }
+            for (java.util.Map.Entry<Integer, Long> item : cantidades.entrySet()) {
+                Producto actual = productoInformation.buscar(item.getKey());
+                if (actual == null || (long) actual.getStock() + item.getValue() > Integer.MAX_VALUE) {
+                    throw new IllegalArgumentException("La compra contiene una cantidad o producto inválido.");
+                }
+            }
+            RegistroCompra rcompra = iniciarModuloCompra(true, request);
             compra.setId_registroCompra(rcompra.getId());
             compraInformation.crear(compra);
         }

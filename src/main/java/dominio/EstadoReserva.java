@@ -1,7 +1,7 @@
 package dominio;
 
 public enum EstadoReserva {
-    CONFIRMADO, PENDIENTE, CANCELADO;
+    CONFIRMADO, PENDIENTE, FINALIZADO, CANCELADO;
     
     public static EstadoReserva fromString(String estado) {
         for (EstadoReserva e : EstadoReserva.values()) {

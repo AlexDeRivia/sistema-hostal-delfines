@@ -80,27 +80,48 @@ public class SvUpdateProducto extends HttpServlet{
     private void modificarProducto(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         //Recuperamos datos del formulario
         Integer id = Integer.valueOf(request.getParameter("producto_id"));
-        String nombreProducto = request.getParameter("producto_name");
-        double precioV = Double.parseDouble(request.getParameter("pventa"));
-        double precioC = Double.parseDouble(request.getParameter("pcompra"));
-        String ctg = String.valueOf(request.getParameter("categoriaStatus"));
-        Producto p = new Producto();
-        p.setId(id);
+        Producto p = productoInformation.buscar(id);
+        if (p == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        String nombreProducto;
+        double precioV;
+        double precioC;
+        try {
+            nombreProducto = InputRules.text(request.getParameter("producto_name"), "El producto");
+            precioV = InputRules.positiveMoney(request.getParameter("pventa"));
+            precioC = InputRules.positiveMoney(request.getParameter("pcompra"));
+            if (productoInformation.listado().stream().anyMatch(other -> other.getId() != id
+                    && other.getNombre().equalsIgnoreCase(nombreProducto))) {
+                throw new IllegalArgumentException("Ya existe un producto con ese nombre.");
+            }
+        } catch (IllegalArgumentException ex) {
+            request.setAttribute("error", ex.getMessage());
+            request.setAttribute("producto", p);
+            request.setAttribute("categorias", Arrays.asList(Categoria.values()));
+            request.getRequestDispatcher("UpdateProducto.jsp").forward(request, response);
+            return;
+        }
+        Categoria categoria;
+        try {
+            categoria = Categoria.valueOf(request.getParameter("categoriaStatus"));
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            request.setAttribute("error", "Selecciona una categoría válida.");
+            request.setAttribute("producto", p);
+            request.setAttribute("categorias", Arrays.asList(Categoria.values()));
+            request.getRequestDispatcher("UpdateProducto.jsp").forward(request, response);
+            return;
+        }
         p.setNombre(nombreProducto);
         p.setPrecioVenta(precioV);
         p.setPrecioCompra(precioC);
-        Categoria categoria;
-        if(ctg.equals("ALIMENTOS")){
-            categoria = Categoria.ALIMENTOS;
-        }else{
-            categoria = Categoria.USO_PERSONAL;
-        }
         p.setCategoria(categoria);
         
         productoInformation.actualizar(p);
         System.out.println("modificando");
 
-        this.accionDefault(request, response);
+        response.sendRedirect(request.getContextPath() + "/SvProducto?ok=actualizado");
     }
 
 }

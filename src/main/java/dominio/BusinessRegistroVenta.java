@@ -21,14 +21,15 @@ public class BusinessRegistroVenta {
     public RegistroVenta actualizar(RegistroVenta obj) {
         return rventaDAO.actualizar(obj);
     }
-    public RegistroVenta registroVentaDiario(Turno turno) {
+    public RegistroVenta registroVentaDiario(Turno turno, int empleadoId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime fechaHoraActual = LocalDateTime.now();
         String fecha = fechaHoraActual.format(formatter);
         
         
         for(RegistroVenta rv : this.listado()){
-            if(rv.getFecha().equals(fecha) && rv.getTurno().equals(turno)){
+            if(rv.getFecha().equals(fecha) && rv.getTurno().equals(turno)
+                    && rv.getEmpleado().getId() == empleadoId){
                 return rv;
             }
         }

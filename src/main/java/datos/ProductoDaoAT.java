@@ -5,6 +5,7 @@ import dominio.Producto;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -36,7 +37,7 @@ public class ProductoDaoAT extends Dao<Producto>{
 
             bw.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
         return obj;
     }
@@ -126,7 +127,7 @@ public class ProductoDaoAT extends Dao<Producto>{
                 bw.newLine();
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
     }
 

@@ -7,6 +7,7 @@ import dominio.BusinessRegistroReserva;
 import dominio.BusinessReserva;
 import dominio.Cliente;
 import dominio.Empleado;
+import dominio.EstadoReserva;
 import dominio.Habitacion;
 import dominio.RegistroReserva;
 import dominio.Reserva;
@@ -29,15 +30,8 @@ public class ServletControladorReserva extends HttpServlet{
     private BusinessHabitacion habitacionInformation;
     private BusinessRegistroReserva inforreserva;
     private Reserva reserva;
-    private Empleado empleadoSession;
     
     public ServletControladorReserva(){
-        this.empleadoSession = new Empleado();
-        empleadoSession.setId(1);
-        empleadoSession.setDni("75465361");
-        empleadoSession.setNombre("Nilton");
-        empleadoSession.setUsername("admin");
-        
         reservaInformation = new BusinessReserva();
         clienteInformation = new BusinessCliente();
         habitacionInformation = new BusinessHabitacion();
@@ -47,9 +41,23 @@ public class ServletControladorReserva extends HttpServlet{
             
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RegistroReserva rreserva = this.iniciarRegistroReserva();
+        RegistroReserva rreserva = this.iniciarRegistroReserva(request);
 
         List<Reserva> reservas = new ReservaDaoAT().listado();
+        String fecha = request.getParameter("fecha");
+        String estado = request.getParameter("estado");
+        if (fecha != null && !fecha.isBlank()) {
+            reservas.removeIf(item -> !fecha.equals(item.getFechaIngreso()));
+        }
+        if (estado != null && !estado.isBlank()) {
+            try {
+                EstadoReserva filtro = EstadoReserva.valueOf(estado);
+                reservas.removeIf(item -> item.getEstadoReserva() != filtro);
+            } catch (IllegalArgumentException ex) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+        }
         request.setAttribute("reservas", reservas);
         request.setAttribute("rreserva", rreserva);
         HttpSession sessionr = request.getSession();
@@ -60,11 +68,12 @@ public class ServletControladorReserva extends HttpServlet{
 
     }
 
-    public RegistroReserva iniciarRegistroReserva() {
+    public RegistroReserva iniciarRegistroReserva(HttpServletRequest request) {
         //CREACION DEL REGISTRO DE RESERVA DIARIO
         RegistroReserva rsvTemp = null;
         Turno turno = Turno.valueOf(this.obtenerTurno());
-        rsvTemp = inforreserva.registroReservaDiario(turno);
+        Empleado empleadoSession = OperadorActual.desde(request);
+        rsvTemp = inforreserva.registroReservaDiario(turno, empleadoSession.getId());
         if (rsvTemp != null) {
             return rsvTemp;
         } else {

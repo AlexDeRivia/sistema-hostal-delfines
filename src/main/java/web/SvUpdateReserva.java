@@ -11,6 +11,7 @@ import dominio.EstadoReserva;
 import dominio.Habitacion;
 import dominio.RegistroReserva;
 import dominio.Reserva;
+import dominio.ReservaService;
 import dominio.Turno;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -74,7 +75,12 @@ public class SvUpdateReserva extends HttpServlet {
         if (accion != null) {
             switch (accion) {
                 case "update":
-                    this.modificarReserva(request, response);
+                    try {
+                        this.modificarReserva(request, response);
+                    } catch (IllegalArgumentException ex) {
+                        request.setAttribute("error", ex.getMessage());
+                        this.ActualizarReserva(request, response);
+                    }
                     break;
                 default:
                     this.accionDefault(request, response);
@@ -105,10 +111,16 @@ public class SvUpdateReserva extends HttpServlet {
     }
 
     private void ActualizarReserva(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int idReserva = Integer.parseInt(request.getParameter("idReserva"));
+        String requestedId = request.getParameter("idReserva");
+        int idReserva = Integer.parseInt(requestedId == null
+                ? request.getParameter("reservationId") : requestedId);
         Reserva reservaid = new Reserva();
         reservaid.setId(idReserva);
         Reserva reserva = new BusinessReserva().buscar(reservaid.getId());
+        if (reserva == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         request.setAttribute("reserva", reserva);
         List<Habitacion> habitaciones = new BusinessHabitacion().listado();
         List<Cliente> clientes = new BusinessCliente().listado();
@@ -121,73 +133,27 @@ public class SvUpdateReserva extends HttpServlet {
     }
 
     private void modificarReserva(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //Recuperamos datos del formulario
-        Integer id = Integer.valueOf(request.getParameter("reservationId"));
-        Reserva existing = new BusinessReserva().buscar(id);
-        if (existing == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        Integer nHabitacion = Integer.valueOf(request.getParameter("roomNumber"));
-        System.out.println(nHabitacion);
-        // Intenta analizar el texto del campo de entrada de tiempo en un objeto LocalTime
-        //LocalTime horaIngreso = LocalTime.parse(request.getParameter("checkInTime"), DateTimeFormatter.ofPattern("H:mm"));
-
-        //LocalTime horaIngreso = LocalTime.parse(request.getParameter("checkInTime"), DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String hora_ingreso = request.getParameter("checkInTime");
-        System.out.println(hora_ingreso);
-        String horas_reservadas = request.getParameter("reservedHours");
-        double costoEfectivo;
-        double costoYape;
-        try {
-            costoEfectivo = Double.parseDouble(request.getParameter("cashPayment"));
-        } catch (Exception e) {
-            costoEfectivo = 0;
-        }
-        try {
-            costoYape = Double.parseDouble(request.getParameter("yapePayment"));
-        } catch (Exception e) {
-            costoYape = 0;
-        }
-        String nombrecliente = request.getParameter("clientName");
-        System.out.println(nombrecliente);
-        int numero_huespedes = Integer.parseInt(request.getParameter("numberOfGuests"));
-        System.out.println(numero_huespedes);
-        EstadoReserva estado_reserva = EstadoReserva.valueOf(request.getParameter("reservationStatus"));
-        System.out.println(estado_reserva);
-        BusinessHabitacion infoHabitacion = new BusinessHabitacion();
-        Habitacion habitacion = infoHabitacion.getHabitacionByNumero(nHabitacion);
-        System.out.println(habitacion);
-        BusinessCliente infoCliente = new BusinessCliente();
-        Cliente cliente = infoCliente.getClienteByNombre(nombrecliente);
-        System.out.println(cliente);
-        habitacion.setDisponible(false);
-        if (estado_reserva.equals(EstadoReserva.CANCELADO) || estado_reserva.equals(EstadoReserva.CONFIRMADO)) {
-            habitacion.setDisponible(true);
-            infoHabitacion.actualizar(habitacion);
-        }
-
-        //Guardamos datos
         Reserva reserva = new Reserva();
-        reserva.setId(id);
-        reserva.setNumeroHuespedes(numero_huespedes);
-        reserva.setCostoEfectivo(costoEfectivo);
-        reserva.setCostoYape(costoYape);
-        reserva.setHora_ingreso(hora_ingreso);
-        reserva.setHoras_reservadas(horas_reservadas);
-        reserva.setEstadoReserva(estado_reserva);
-        reserva.setCliente(cliente);
-        reserva.setHabitacion(habitacion);
-        reserva.setRegistroreserva_id(existing.getRegistroreserva_id());
+        reserva.setId(Integer.parseInt(request.getParameter("reservationId")));
+        reserva.setNumeroHuespedes(Integer.parseInt(request.getParameter("numberOfGuests")));
+        reserva.setCostoEfectivo(pago(request.getParameter("cashPayment")));
+        reserva.setCostoYape(pago(request.getParameter("yapePayment")));
+        reserva.setFechaIngreso(request.getParameter("checkInDate"));
+        reserva.setHora_ingreso(request.getParameter("checkInTime"));
+        reserva.setHoras_reservadas(request.getParameter("reservedHours"));
+        String estado = request.getParameter("reservationStatus");
+        if (estado == null) {
+            throw new IllegalArgumentException("Selecciona un estado válido.");
+        }
+        reserva.setEstadoReserva(EstadoReserva.valueOf(estado));
+        reserva.setCliente(new BusinessCliente().buscar(Integer.parseInt(request.getParameter("clientId"))));
+        reserva.setHabitacion(new BusinessHabitacion().buscar(Integer.parseInt(request.getParameter("roomId"))));
+        ReservaService.actualizar(reserva);
+        response.sendRedirect(request.getContextPath() + "/ServletControladorReserva?ok=actualizada");
+    }
 
-        BusinessReserva inforeserva = new BusinessReserva();
-        inforeserva.actualizar(reserva);
-        System.out.println("modificando");
-
-        //this.ActualizarReserva(request, response);
-        this.accionDefault(request, response);
-
-        //this.iniciarRegistroReserva();
+    private static double pago(String valor) {
+        return valor == null || valor.isBlank() ? 0 : Double.parseDouble(valor);
     }
 
 }

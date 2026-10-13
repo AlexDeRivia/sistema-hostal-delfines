@@ -35,9 +35,13 @@ public class SvAddEmpleado extends HttpServlet{
         if (accion != null) {
             switch (accion) {
                 case "add":
-                    this.agregarEmpleado(request, response);
-                    this.accionDefault(request, response);
-                    System.out.println("Agregando");
+                    try {
+                        this.agregarEmpleado(request, response);
+                        response.sendRedirect(request.getContextPath() + "/SvEmpleado?ok=creado");
+                    } catch (IllegalArgumentException ex) {
+                        request.setAttribute("error", ex.getMessage());
+                        this.accionDefault(request, response);
+                    }
                     break;
                 default:
                     this.accionDefault(request, response);
@@ -54,21 +58,24 @@ public class SvAddEmpleado extends HttpServlet{
 
     private void agregarEmpleado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //Recuperamos datos del formulario
-        String nombre = request.getParameter("nombreE");
-        String dni = request.getParameter("dniE");
-        String apellido = request.getParameter("apellidoE");
-        String usuario = request.getParameter("usuarioE");
+        String nombre = InputRules.text(request.getParameter("nombreE"), "El nombre");
+        String dni = InputRules.text(request.getParameter("dniE"), "El documento");
+        String apellido = InputRules.text(request.getParameter("apellidoE"), "El apellido");
+        String usuario = InputRules.text(request.getParameter("usuarioE"), "El usuario");
         String clave = request.getParameter("claveE");
-        if(!nombre.equals("") && !apellido.equals("") && !apellido.equals("") && !usuario.equals("") && !clave.equals("")){
-            Empleado empleado = new Empleado();
-                empleado.setDni(dni);
-                empleado.setNombre(nombre);
-                empleado.setApellido(apellido);
-                empleado.setUsername(usuario);
-                empleado.setClave(clave);
-            empleadoInformation.crear(empleado);
-            
+        if (clave == null || clave.length() < 8) {
+            throw new IllegalArgumentException("La clave debe tener al menos 8 caracteres.");
         }
-        System.out.println("SE GUARDO");
+        if (empleadoInformation.listado().stream().anyMatch(e -> e.getDni().equalsIgnoreCase(dni)
+                || e.getUsername().equalsIgnoreCase(usuario))) {
+            throw new IllegalArgumentException("Ya existe un empleado con ese documento o usuario.");
+        }
+        Empleado empleado = new Empleado();
+        empleado.setDni(dni);
+        empleado.setNombre(nombre);
+        empleado.setApellido(apellido);
+        empleado.setUsername(usuario);
+        empleado.setClave(clave);
+        empleadoInformation.crear(empleado);
     }
 }

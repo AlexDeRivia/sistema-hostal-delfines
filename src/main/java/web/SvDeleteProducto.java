@@ -45,9 +45,16 @@ public class SvDeleteProducto extends HttpServlet{
         Producto producto = productoInformation.buscar(idProducto);
         
         if (producto != null) {
+            boolean usado = new datos.LineaCompraDaoAT().listado().stream()
+                    .anyMatch(linea -> linea.getProducto().getId() == idProducto)
+                    || new datos.LineaVentaDaoAT().listado().stream()
+                    .anyMatch(linea -> linea.getProducto().getId() == idProducto);
+            if (usado) {
+                response.sendRedirect(request.getContextPath() + "/SvProducto?error=referenciado");
+                return;
+            }
             productoInformation.eliminar(producto);
-            System.out.println("eliminando");
-            request.getRequestDispatcher("index.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/SvProducto?ok=eliminado");
         } else {
             System.out.println("Algo salio mal al eliminar");
         }

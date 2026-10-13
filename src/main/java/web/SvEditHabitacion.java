@@ -41,17 +41,33 @@ public class SvEditHabitacion extends HttpServlet {
             throws ServletException, IOException {
         
         /*Recibir los datos de habitacion*/
-        int numeroHabitacion = Integer.parseInt(request.getParameter("numero"));
-        int numeroCamasHabitacion = Integer.parseInt(request.getParameter("numeroCamas"));
+        int numeroHabitacion;
+        int numeroCamasHabitacion;
+        try {
+            numeroHabitacion = Integer.parseInt(request.getParameter("numero"));
+            numeroCamasHabitacion = Integer.parseInt(request.getParameter("numeroCamas"));
+        } catch (NumberFormatException ex) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Indica números válidos para la habitación y las camas.");
+            return;
+        }
        
         String ventanaAfueraStr = request.getParameter("ventanaAfuera");
-        boolean ventanaAfueraHabitacion = ventanaAfueraStr.equals("true");
+        boolean ventanaAfueraHabitacion = Boolean.parseBoolean(ventanaAfueraStr);
         String disponibleStr = request.getParameter("disponible");
-        boolean disponibleHabitacion = disponibleStr.equals("true");
+        boolean disponibleHabitacion = Boolean.parseBoolean(disponibleStr);
         
      
         HttpSession session = request.getSession();
         Habitacion habitacionEditar = (Habitacion) session.getAttribute("habitacionEditar");
+        if (habitacionEditar == null || numeroHabitacion <= 0 || numeroCamasHabitacion <= 0) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        Habitacion mismoNumero = new BusinessHabitacion().getHabitacionByNumero(numeroHabitacion);
+        if (mismoNumero != null && mismoNumero.getId() != habitacionEditar.getId()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ya existe una habitación con ese número.");
+            return;
+        }
         
         // Modificar los valores de habitacion con los datos recibidos del formulario
         habitacionEditar.setNumero(numeroHabitacion);

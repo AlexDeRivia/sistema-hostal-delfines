@@ -10,6 +10,7 @@ import dominio.EstadoReserva;
 import dominio.Habitacion;
 import dominio.RegistroReserva;
 import dominio.Reserva;
+import dominio.ReservaService;
 import dominio.Turno;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -51,16 +52,11 @@ public class SvDeleteReserva extends HttpServlet{
     
     private void eliminarReserva(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         //Recuperamos datos del formulario
-        BusinessReserva inforeserva = new BusinessReserva();
-        int idReserva = Integer.parseInt(request.getParameter("idReserva"));
-        Reserva reserva = inforeserva.buscar(idReserva);
-        
-        if (reserva != null) {
-            inforeserva.eliminar(reserva);
-            System.out.println("eliminando");
-            request.getRequestDispatcher("index.jsp").forward(request, response);
-        } else {
-            System.out.println("Algo salio mal al eliminar");
+        try {
+            ReservaService.eliminar(Integer.parseInt(request.getParameter("idReserva")));
+            response.sendRedirect(request.getContextPath() + "/ServletControladorReserva?ok=eliminada");
+        } catch (IllegalArgumentException ex) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
         }
     }
     

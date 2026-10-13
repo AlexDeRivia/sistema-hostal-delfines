@@ -17,8 +17,7 @@ public class LineaCompra {
     }
     
     public double subtotal(){
-        
-        return 0.0;
+        return precioUnitario * cantidad;
     }
 
     public int getId() {

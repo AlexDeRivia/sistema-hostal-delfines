@@ -1,0 +1,10 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@include file="components/auth.jsp"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@include file="components/head.jsp"%>
+<%@include file="components/sidebar.jsp"%>
+<%@include file="components/navBar.jsp"%>
+<header class="page-header"><div><span class="page-kicker">Comercial · Registro</span><h1>Movimientos</h1><p>Historial de compras y ventas realizadas.</p></div></header>
+<section class="surface"><div class="section-title"><h2>Compras</h2></div><c:choose><c:when test="${empty registrosCompra}"><div class="empty-state"><i class="fas fa-box-open"></i><h3>Sin compras registradas</h3><p>Las compras guardadas aparecerán aquí.</p></div></c:when><c:otherwise><div class="table-responsive"><table><thead><tr><th>ID</th><th>Fecha</th><th>Proveedor</th><th class="numeric">Total</th></tr></thead><tbody><c:forEach var="registro" items="${registrosCompra}"><c:forEach var="compra" items="${registro.listCompras}"><tr><td class="data-code">#${compra.id}</td><td>${registro.fecha}</td><td><c:out value="${compra.proveedor.razonSocial}"/></td><td class="numeric">S/ ${compra.total}</td></tr></c:forEach></c:forEach></tbody></table></div></c:otherwise></c:choose></section>
+<section class="surface"><div class="section-title"><h2>Ventas</h2></div><c:choose><c:when test="${empty registrosVenta}"><div class="empty-state"><i class="fas fa-receipt"></i><h3>Sin ventas registradas</h3><p>Las ventas guardadas aparecerán aquí.</p></div></c:when><c:otherwise><div class="table-responsive"><table><thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th class="numeric">Total</th></tr></thead><tbody><c:forEach var="registro" items="${registrosVenta}"><c:forEach var="venta" items="${registro.listVentas}"><tr><td class="data-code">#${venta.id}</td><td>${registro.fecha}</td><td><c:out value="${venta.cliente.nombre}"/> <c:out value="${venta.cliente.apellido}"/></td><td class="numeric">S/ ${venta.total}</td></tr></c:forEach></c:forEach></tbody></table></div></c:otherwise></c:choose></section>
+<%@include file="components/footer.jsp"%>

@@ -1,73 +1,14 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
-<%@page import="dominio.Cliente"%>
-<%@page import="java.util.List"%>
-
+<%@page import="dominio.Cliente,java.util.List"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<!-- Begin Page Content -->
-<div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Registros de Clientes</h1>
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Listado de Clientes</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>DNI</th>
-                            <th>Nombres</th>
-                            <th>Apellidos</th>
-                            <th style="width:210px">Accion</th>
-                        </tr>
-                    </thead>                                     
-                    <tbody>      
-                        <% 
-                        List<Cliente> listaClientes = (List<Cliente>) request.getSession().getAttribute("listaClientes");
-                        if (listaClientes != null && !listaClientes.isEmpty()) {
-                            for (Cliente cliente : listaClientes) {  
-                        %>
-                        <tr>
-                            <td id="id<%=cliente.getId()%>"><%=cliente.getId() %></td>
-                            <td><%=web.HtmlEscape.escape(cliente.getDni()) %></td>
-                            <td><%=web.HtmlEscape.escape(cliente.getNombre()) %></td>
-                            <td><%=web.HtmlEscape.escape(cliente.getApellido()) %></td>
-                            <td style="display: flex; width:230px;">
-                                <form name="eliminar" action="SvElimCliente" method="POST">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-                                    <button type = "submit" class="btn btn-primary btn-user btn-block" style="background-color:red; margin-right:20px;">
-                                        <i class="fas fa-trash-alt"></i>                                               
-                                    </button>
-                                    <input type="hidden" name="id" value="<%=cliente.getId()%>"> <!-- manda codigo al servlet-->
-                                </form>
-                                <form name="editar" action="SvEditCliente" method="GET"> <!-- manda codigo al servlet-->
-                                    <button type="submit" class="btn btn-primary btn-user btn-block"; style="margin-left:20px;">
-                                        <i class="fas fa-pencil-alt"></i> 
-                                    </button>
-                                    <input type="hidden" name="id" value="<%=cliente.getId()%>"> <!-- manda codigo al servlet-->
-                                </form>                   
-                            </td>                                         
-                        </tr>                    
-                        <% 
-                            }
-                        } else { 
-                        %>
-                        <tr>
-                            <td colspan="3">No hay clientes registrados.</td>
-                        </tr>
-                        <% 
-                        }
-                        %>                        
-                    </tbody>      
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
+<header class="page-header"><div><span class="page-kicker">Catálogos · Huéspedes</span><h1>Clientes</h1><p>Datos de las personas registradas para reservas y ventas.</p></div><div class="page-actions"><a class="btn btn-primary" href="${pageContext.request.contextPath}/agregarCliente.jsp"><i class="fas fa-plus"></i> Nuevo cliente</a></div></header>
+<c:if test="${not empty sessionScope.errorCliente}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${sessionScope.errorCliente}"/></span></div><c:remove var="errorCliente" scope="session"/></c:if>
+<section class="surface"><div class="section-title"><h2>Directorio de clientes</h2></div>
+<% List<Cliente> listaClientes = (List<Cliente>) session.getAttribute("listaClientes"); if (listaClientes != null && !listaClientes.isEmpty()) { %>
+<div class="table-responsive"><table><thead><tr><th>ID</th><th>DNI</th><th>Nombres</th><th>Apellidos</th><th>Acciones</th></tr></thead><tbody><% for (Cliente cliente : listaClientes) { %><tr><td class="data-code">#<%=cliente.getId()%></td><td><%=web.HtmlEscape.escape(cliente.getDni())%></td><td><%=web.HtmlEscape.escape(cliente.getNombre())%></td><td><%=web.HtmlEscape.escape(cliente.getApellido())%></td><td class="actions-cell"><form action="${pageContext.request.contextPath}/SvEditCliente" method="get"><input type="hidden" name="id" value="<%=cliente.getId()%>"><button class="btn btn-secondary btn-sm" type="submit">Editar</button></form><form action="${pageContext.request.contextPath}/SvElimCliente" method="post" data-confirm="¿Eliminar este cliente?"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><input type="hidden" name="id" value="<%=cliente.getId()%>"><button class="btn btn-danger btn-sm" type="submit">Eliminar</button></form></td></tr><% } %></tbody></table></div>
+<% } else { %><div class="empty-state"><i class="fas fa-users"></i><h3>Sin clientes</h3><p>Agrega el primer cliente para comenzar a gestionar reservas.</p><a class="btn btn-primary" href="${pageContext.request.contextPath}/agregarCliente.jsp">Crear cliente</a></div><% } %></section>
 <%@include file="components/footer.jsp"%>

@@ -1,4 +1,4 @@
-# Hostal Delfines
+# Sistema Hostal Delfines
 
 Aplicación web Jakarta EE 10 para administrar reservas, habitaciones, empleados, compras y ventas. Genera un archivo WAR y usa archivos de texto como almacenamiento principal.
 
@@ -17,8 +17,13 @@ Definir las variables de entorno en el servidor, nunca en el repositorio:
 | `HOSTAL_ADMIN_USER` | Usuario administrador inicial, obligatorio para iniciar sesión como administrador. |
 | `HOSTAL_ADMIN_PASSWORD` | Contraseña nueva y exclusiva del administrador, obligatoria. |
 | `HOSTAL_DATA_DIR` | Directorio persistente para los archivos de datos. Si falta, se usa `~/.hostal-delfines`. |
+| `HOSTAL_DEMO_SEED` | Opcional: `true` carga habitaciones, clientes, productos, un proveedor y una reserva ficticios al iniciar con datos vacíos. |
 
 La aplicación crea los archivos de datos vacíos la primera vez que los necesita. Para una demo pública, usar únicamente datos ficticios y un volumen persistente montado en `/data`. El sistema no importa datos del repositorio anterior.
+
+El almacenamiento en archivos está pensado para una sola instancia y una demo de uso ligero. No ofrece transacciones entre compras, ventas, inventario y registros; para operación comercial real o varias réplicas se necesita una base de datos transaccional.
+
+Los datos de ejemplo se cargan una sola vez si los catálogos están vacíos. Para reiniciar una demo, usar un volumen nuevo y vacío; la aplicación no elimina datos existentes.
 
 `HOSTAL_DB_URL`, `HOSTAL_DB_USER` y `HOSTAL_DB_PASSWORD` son opcionales para las clases JDBC heredadas. Los flujos activos usan archivos y no requieren base de datos. No configurar estas variables para la demo de archivos.
 
@@ -28,7 +33,7 @@ La aplicación crea los archivos de datos vacíos la primera vez que los necesit
 mvn clean package
 ```
 
-El resultado es `target/HOSTAL_DELFINES_APRRV-1.0.war`. Para el contenedor:
+El resultado es `target/sistema-hostal-delfines-1.0.war`. Para el contenedor:
 
 ```sh
 docker build -t hostal-delfines .

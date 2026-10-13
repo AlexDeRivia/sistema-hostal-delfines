@@ -21,13 +21,14 @@ public class BusinessRegistroCompra {
     public RegistroCompra actualizar(RegistroCompra obj) {
         return rcompraDAO.actualizar(obj);
     }
-    public RegistroCompra registroCompraDiario(Turno turno) {
+    public RegistroCompra registroCompraDiario(Turno turno, int empleadoId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime fechaHoraActual = LocalDateTime.now();
         String fecha = fechaHoraActual.format(formatter);
         
         for(RegistroCompra rc : this.listado()){
-            if(rc.getFecha().equals(fecha) && rc.getTurno().equals(turno)){
+            if(rc.getFecha().equals(fecha) && rc.getTurno().equals(turno)
+                    && rc.getEmpleado().getId() == empleadoId){
                 return rc;
             }
         }

@@ -6,6 +6,7 @@ import dominio.Turno;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -38,7 +39,7 @@ public class RegistroReservaDaoAT extends Dao<RegistroReserva>{
 
             bw.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
         return obj;
     }
@@ -140,7 +141,7 @@ public class RegistroReservaDaoAT extends Dao<RegistroReserva>{
                 bw.newLine();
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
     }
 

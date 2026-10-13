@@ -41,9 +41,21 @@ public class SvCliente extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String dni = request.getParameter("dni");
-        String nombre = request.getParameter("nombre");
-        String apellido = request.getParameter("apellido");
+        String dni;
+        String nombre;
+        String apellido;
+        try {
+            dni = InputRules.text(request.getParameter("dni"), "El documento");
+            nombre = InputRules.text(request.getParameter("nombre"), "El nombre");
+            apellido = InputRules.text(request.getParameter("apellido"), "El apellido");
+            if (new BusinessCliente().listado().stream().anyMatch(c -> c.getDni().equalsIgnoreCase(dni))) {
+                throw new IllegalArgumentException("Ya existe un cliente con ese documento.");
+            }
+        } catch (IllegalArgumentException ex) {
+            request.setAttribute("error", ex.getMessage());
+            request.getRequestDispatcher("agregarCliente.jsp").forward(request, response);
+            return;
+        }
     
           // Crear una instancia de Cliente con los parámetros recibidos
         Cliente nuevoCliente = new Cliente(dni, nombre, apellido);
@@ -55,7 +67,7 @@ public class SvCliente extends HttpServlet {
         // Manejar el resultado de la operación de creación del cliente
         if (clienteCreado != null) {
             // Cliente creado exitosamente
-            response.sendRedirect("agregarCliente.jsp"); // Redirigir a la página principal
+            response.sendRedirect("SvCliente");
         } else {
             // Ocurrió un error al crear el cliente
             String errorMessage = "Error al crear el cliente";

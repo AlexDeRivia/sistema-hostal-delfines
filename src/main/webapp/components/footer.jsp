@@ -1,70 +1,16 @@
-            </div>
-            <!-- /.container-fluid -->
-
-        </div>
-        <!-- End of Main Content -->
-
-        <!-- Footer -->
-        <footer class="sticky-footer bg-white">
-            <div class="container my-auto">
-                <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Hostal los delfines 2024</span>
-                </div>
-            </div>
-        </footer>
-        <!-- End of Footer -->
-
-    </div>
-    <!-- End of Content Wrapper -->
-
-</div>
-<!-- End of Page Wrapper -->
-
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">�Listo para salir?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">x</span>
-                </button>
-            </div>
-            <div class="modal-body">Selecciona "Logout" a continuaci�n si est� listo para finalizar su sesi�n actual.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                <form action="SvLogout" method="POST">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-                    <input type="submit" class="btn btn-primary" value="Logout">
-                </form>
-            </div>
-        </div>
+        </main>
+        <footer class="app-footer"><span>Hostal Delfines</span><span>Sistema de gestión</span></footer>
     </div>
 </div>
-
-<!-- Bootstrap core JavaScript-->
+<button class="scroll-top" type="button" aria-label="Volver arriba" data-scroll-top><i class="fas fa-arrow-up" aria-hidden="true"></i></button>
+<dialog class="confirm-dialog" id="actionConfirm" aria-labelledby="confirmTitle">
+    <div class="confirm-icon" aria-hidden="true"><i class="fas fa-exclamation-circle"></i></div>
+    <h2 id="confirmTitle">Confirmar acción</h2>
+    <p data-confirm-message>¿Deseas continuar?</p>
+    <div class="confirm-actions"><button type="button" class="btn btn-light" data-cancel-confirm>Cancelar</button><button type="button" class="btn btn-danger" data-accept-confirm>Confirmar</button></div>
+</dialog>
 <script src="vendor/jquery/jquery.min.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- Core plugin JavaScript-->
-<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-<!-- Custom scripts for all pages-->
-<script src="js/sb-admin-2.min.js"></script>
-
-<!-- Page level plugins -->
-<script src="vendor/chart.js/Chart.min.js"></script>
-
-<!-- Page level custom scripts -->
-<script src="js/demo/chart-area-demo.js"></script>
-<script src="js/demo/chart-pie-demo.js"></script>
-
+<script src="js/delfines-ui.js"></script>
 </body>
-
 </html>

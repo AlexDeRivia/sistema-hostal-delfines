@@ -9,6 +9,7 @@ import dominio.Turno;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -25,6 +26,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
             // Obtener los atributos de la reserva
             int nuevoId = obtenerUltimoId() + 1;
             int id = nuevoId;
+            obj.setId(id);
             int numeroHuespedes = obj.getNumeroHuespedes();
             double costoEfectivo = obj.getCostoEfectivo();
             double costoYape = obj.getCostoYape();
@@ -39,7 +41,8 @@ public class ReservaDaoAT extends Dao<Reserva> {
             // Construir la línea para escribir en el archivo
             String line = id + "," + numeroHuespedes + "," + costoEfectivo + "," + costoYape + ","
                     + horasReservadas + "," + estadoReserva + "," + cliente.getId() + "," + habitacion.getId()
-                    + "," + horaIngreso + "," + horaSalida + "," + id_registroReserva;
+                    + "," + horaIngreso + "," + horaSalida + "," + id_registroReserva
+                    + "," + obj.getFechaIngreso();
 
             // Escribir la línea en el archivo
             bw.write(line);
@@ -47,7 +50,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
 
             bw.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
         return obj;
     }
@@ -108,7 +111,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
             while ((line = br.readLine()) != null) {
                 String[] partes = line.split(",");
 
-                if (partes.length == 11) { // Asegurarse de que la línea tenga el formato correcto
+                if (partes.length >= 11) { // El formato anterior no tenía fecha propia.
                     Reserva reserva = new Reserva();
                     reserva.setId(Integer.parseInt(partes[0]));
                     reserva.setNumeroHuespedes(Integer.parseInt(partes[1]));
@@ -133,6 +136,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
                     reserva.setHora_salida(partes[9]);
                     int idRegistroReservaEnReserva = Integer.parseInt(partes[10]);
                     reserva.setRegistroreserva_id(idRegistroReservaEnReserva); // Añadir el ID del registro de reserva
+                    reserva.setFechaIngreso(partes.length >= 12 ? partes[11] : fechaRegistro(idRegistroReservaEnReserva));
 
                     listaReservas.add(reserva);
                 }
@@ -153,7 +157,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
             while ((line = br.readLine()) != null) {
                 String[] partes = line.split(",");
 
-                if (partes.length == 11) { // Asegurarse de que la línea tenga el formato correcto
+                if (partes.length >= 11) { // Compatibilidad con registros anteriores.
                     int idReserva = Integer.parseInt(partes[0]);
                     int idRegistroReservaEnReserva = Integer.parseInt(partes[10]);
 
@@ -177,6 +181,8 @@ public class ReservaDaoAT extends Dao<Reserva> {
 
                         reserva.setHora_ingreso(partes[8]);
                         reserva.setHora_salida(partes[9]);
+                        reserva.setRegistroreserva_id(idRegistroReservaEnReserva);
+                        reserva.setFechaIngreso(partes.length >= 12 ? partes[11] : fechaRegistro(idRegistroReservaEnReserva));
 
                         listaReservas.add(reserva);
                     }
@@ -198,7 +204,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
             while ((line = br.readLine()) != null) {
                 String[] partes = line.split(",");
 
-                if (partes.length == 11) { // Asegurarse de que la línea tenga el formato correcto
+                if (partes.length >= 11) { // Compatibilidad con registros anteriores.
                     int idReserva = Integer.parseInt(partes[0]);
                     int idClienteEnReserva = Integer.parseInt(partes[6]);
 
@@ -218,6 +224,9 @@ public class ReservaDaoAT extends Dao<Reserva> {
 
                         reserva.setHora_ingreso(partes[8]);
                         reserva.setHora_salida(partes[9]);
+                        int registroId = Integer.parseInt(partes[10]);
+                        reserva.setRegistroreserva_id(registroId);
+                        reserva.setFechaIngreso(partes.length >= 12 ? partes[11] : fechaRegistro(registroId));
 
                         listaReservasCliente.add(reserva);
                     }
@@ -232,43 +241,11 @@ public class ReservaDaoAT extends Dao<Reserva> {
 
     public List<Reserva> listadoPorFecha(String fecha) {
         List<Reserva> listaReservasPorFecha = new ArrayList<>();
-
-        try (BufferedReader br = Files.newBufferedReader(Paths.get(PATH + "RegistroReservas.txt"))) {
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                String[] partes = line.split(",");
-
-                if (partes.length == 4) { // Asegurarse de que la línea tenga el formato correcto
-                    RegistroReserva registroReserva = new RegistroReserva();
-                    registroReserva.setId(Integer.parseInt(partes[0]));
-                    registroReserva.setFecha(partes[1]);
-                    registroReserva.setLiquidacion(Double.parseDouble(partes[2]));
-
-                    // Manejar la conversión de String a enum para el turno
-                    try {
-                        registroReserva.setTurno(Turno.valueOf(partes[3]));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("Error al convertir el nombre del turno a un valor de enum Turno: " + e.getMessage());
-                    }
-
-                    // Cargar las reservas asociadas al registro de reserva
-                    ReservaDaoAT reservaDao = new ReservaDaoAT();
-                    List<Reserva> listReservas = reservaDao.listadoPorRegistroReserva(registroReserva.getId());
-
-                    // Filtrar las reservas por la fecha especificada
-                    for (Reserva reserva : listReservas) {
-                        // Utilizar la fecha de RegistroReserva para filtrar
-                        if (registroReserva.getFecha().equals(fecha)) {
-                            listaReservasPorFecha.add(reserva);
-                        }
-                    }
-                }
+        for (Reserva reserva : listado()) {
+            if (fecha.equals(reserva.getFechaIngreso())) {
+                listaReservasPorFecha.add(reserva);
             }
-        } catch (IOException | NumberFormatException ex) {
-            ex.printStackTrace(); // Manejar la excepción según tu lógica
         }
-
         return listaReservasPorFecha;
     }
 
@@ -276,11 +253,7 @@ public class ReservaDaoAT extends Dao<Reserva> {
         List<Cliente> clientesConReservasActivas = new ArrayList<>();
 
         for (Reserva reserva : listado()) {
-            // Obtén la habitación asociada a la reserva
-            Habitacion habitacion = reserva.getHabitacion();
-
-            // Verifica si la habitación está ocupada (disponible == false) y si la reserva está activa
-            if (!habitacion.isDisponible() && reserva.getEstadoReserva() == EstadoReserva.CONFIRMADO) {
+            if (reserva.getEstadoReserva() == EstadoReserva.CONFIRMADO) {
                 Cliente cliente = reserva.getCliente();
 
                 // Agrega el cliente a la lista si aún no está presente
@@ -300,12 +273,13 @@ public class ReservaDaoAT extends Dao<Reserva> {
                         + "," + reserva.getCostoYape() + "," + reserva.getHoras_reservadas() + ","
                         + reserva.getEstadoReserva() + "," + reserva.getCliente().getId() + ","
                         + reserva.getHabitacion().getId() + "," + reserva.getHora_ingreso() + ","
-                        + reserva.getHora_salida() + "," + reserva.getRegistroreserva_id();
+                        + reserva.getHora_salida() + "," + reserva.getRegistroreserva_id() + ","
+                        + reserva.getFechaIngreso();
                 bw.write(line);
                 bw.newLine();
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -318,5 +292,20 @@ public class ReservaDaoAT extends Dao<Reserva> {
         } else {
             return 0; // Otra lógica si no hay reservas
         }
+    }
+
+    private String fechaRegistro(int registroId) {
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(PATH + "RegistroReservas.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
+                if (fields.length >= 3 && Integer.parseInt(fields[0]) == registroId) {
+                    return fields[2];
+                }
+            }
+        } catch (IOException | NumberFormatException ex) {
+            throw new IllegalStateException("No se pudo leer la fecha de la reserva", ex);
+        }
+        return "";
     }
 }

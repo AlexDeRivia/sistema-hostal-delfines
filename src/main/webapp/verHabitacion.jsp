@@ -1,76 +1,14 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
-<%@page import="dominio.Habitacion"%>
-<%@page import="java.util.List"%>
-
+<%@page import="dominio.Habitacion,java.util.List"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<!-- Begin Page Content -->
-<div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Registros de Habitaciones</h1>
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Listado de Habitaciones</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>N� Habitacion</th>
-                            <th>N� Camas</th>
-                            <th>Disponibilidad</th>
-                            <th>Ventana</th>
-                            <th style="width:210px">Accion</th>
-                        </tr>
-                    </thead>                                     
-                    <tbody>      
-                        <% 
-                        List<Habitacion> listaHabitaciones = (List<Habitacion>)request.getSession().getAttribute("listaHabitaciones");
-                        if (listaHabitaciones != null && !listaHabitaciones.isEmpty()) {
-                            for (Habitacion habitacion : listaHabitaciones) {  
-                        %>
-                        <tr>
-                            <td id="id<%=habitacion.getId()%>"><%=habitacion.getId() %></td>
-                            <td><%=habitacion.getNumero() %></td>
-                            <td><%=habitacion.getNumeroCamas() %></td>
-                            <td><%=habitacion.isDisponible() ? "Disponible":"No disponible"%></td>
-                            <td><%=habitacion.isVentanaAfuera()? "Si":"No" %></td>
-
-                            <td style="display: flex; width:230px;">
-                                <form name="eliminar" action="SvElimHabitacion" method="POST">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-                                    <button type = "submit" class="btn btn-primary btn-user btn-block" style="background-color:red; margin-right:20px;">
-                                        <i class="fas fa-trash-alt"></i>                                               
-                                    </button>
-                                    <input type="hidden" name="id" value="<%=habitacion.getId()%>"> <!-- manda codigo al servlet-->
-                                </form>
-                                <form name="editar" action="SvEditHabitacion" method="GET"> <!-- manda codigo al servlet-->
-                                    <button type="submit" class="btn btn-primary btn-user btn-block"; style="margin-left:20px;">
-                                        <i class="fas fa-pencil-alt"></i> 
-                                    </button>
-                                    <input type="hidden" name="id" value="<%=habitacion.getId()%>"> <!-- manda codigo al servlet-->
-                                </form>                   
-                            </td>                                              
-                        </tr>                    
-                        <% 
-                            }
-                        } else { 
-                        %>
-                        <tr>
-                            <td colspan="6">No hay habitaciones registradas.</td>
-                        </tr>
-                        <% 
-                        }
-                        %>                        
-                    </tbody>      
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
+<header class="page-header"><div><span class="page-kicker">Catálogos · Alojamiento</span><h1>Habitaciones</h1><p>Capacidad y disponibilidad de cada habitación.</p></div><div class="page-actions"><a class="btn btn-primary" href="${pageContext.request.contextPath}/agregarHabitacion.jsp"><i class="fas fa-plus"></i> Nueva habitación</a></div></header>
+<c:if test="${not empty sessionScope.errorHabitacion}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${sessionScope.errorHabitacion}"/></span></div><c:remove var="errorHabitacion" scope="session"/></c:if>
+<section class="surface"><div class="section-title"><h2>Habitaciones registradas</h2></div>
+<% List<Habitacion> listaHabitaciones = (List<Habitacion>) session.getAttribute("listaHabitaciones"); if (listaHabitaciones != null && !listaHabitaciones.isEmpty()) { %>
+<div class="table-responsive"><table><thead><tr><th>ID</th><th>Habitación</th><th>Camas</th><th>Estado</th><th>Ventana exterior</th><th>Acciones</th></tr></thead><tbody><% for (Habitacion habitacion : listaHabitaciones) { %><tr><td class="data-code">#<%=habitacion.getId()%></td><td class="data-code"><%=habitacion.getNumero()%></td><td><%=habitacion.getNumeroCamas()%></td><td><span class="status-pill <%=habitacion.isDisponible() ? "status-enabled" : "status-disabled"%>"><%=habitacion.isDisponible() ? "Habilitada" : "No habilitada"%></span></td><td><%=habitacion.isVentanaAfuera() ? "Sí" : "No"%></td><td class="actions-cell"><form action="${pageContext.request.contextPath}/SvEditHabitacion" method="get"><input type="hidden" name="id" value="<%=habitacion.getId()%>"><button class="btn btn-secondary btn-sm" type="submit">Editar</button></form><form action="${pageContext.request.contextPath}/SvElimHabitacion" method="post" data-confirm="¿Eliminar esta habitación?"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><input type="hidden" name="id" value="<%=habitacion.getId()%>"><button class="btn btn-danger btn-sm" type="submit">Eliminar</button></form></td></tr><% } %></tbody></table></div>
+<% } else { %><div class="empty-state"><i class="fas fa-door-open"></i><h3>Sin habitaciones</h3><p>Agrega la primera habitación para habilitar reservas.</p><a class="btn btn-primary" href="${pageContext.request.contextPath}/agregarHabitacion.jsp">Crear habitación</a></div><% } %></section>
 <%@include file="components/footer.jsp"%>

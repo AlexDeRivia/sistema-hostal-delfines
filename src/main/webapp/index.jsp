@@ -1,3 +1,4 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>

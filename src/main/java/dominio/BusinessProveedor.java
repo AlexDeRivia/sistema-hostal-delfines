@@ -11,6 +11,10 @@ public class BusinessProveedor {
     public List<Proveedor> listado() {
         return proveedorDAO.listado();
     }
+
+    public Proveedor crear(Proveedor proveedor) {
+        return proveedorDAO.crear(proveedor);
+    }
     
     public Proveedor getProveedorByRazonSocial(String razonSocial){
         for(Proveedor pv : proveedorDAO.listado()){

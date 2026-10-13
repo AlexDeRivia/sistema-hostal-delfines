@@ -59,6 +59,10 @@ public class SvUpdateEmpleado extends HttpServlet{
     private void actualizarEmpleado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         int empleado_id = Integer.parseInt(request.getParameter("idEmpleado"));
         Empleado empleado = empleadoInformation.buscar(empleado_id);
+        if (empleado == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
         
         request.setAttribute("empleado", empleado);
         String jspUpdate = "UpdateEmpleado.jsp";
@@ -68,11 +72,34 @@ public class SvUpdateEmpleado extends HttpServlet{
     private void modificarEmpleado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         //Recuperamos datos del formulario
         Integer id = Integer.valueOf(request.getParameter("idE"));
-        String dni = request.getParameter("dniE");
-        String nombre = request.getParameter("nombreE");
-        String apellido = request.getParameter("apellidoE");
-        String usuario = request.getParameter("usuarioE");
+        Empleado anterior = empleadoInformation.buscar(id);
+        if (anterior == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        String dni;
+        String nombre;
+        String apellido;
+        String usuario;
         String clave = request.getParameter("claveE");
+        try {
+            dni = InputRules.text(request.getParameter("dniE"), "El documento");
+            nombre = InputRules.text(request.getParameter("nombreE"), "El nombre");
+            apellido = InputRules.text(request.getParameter("apellidoE"), "El apellido");
+            usuario = InputRules.text(request.getParameter("usuarioE"), "El usuario");
+            if (clave != null && !clave.isBlank() && clave.length() < 8) {
+                throw new IllegalArgumentException("La clave debe tener al menos 8 caracteres.");
+            }
+            if (empleadoInformation.listado().stream().anyMatch(e -> e.getId() != id
+                    && (e.getDni().equalsIgnoreCase(dni) || e.getUsername().equalsIgnoreCase(usuario)))) {
+                throw new IllegalArgumentException("Ya existe un empleado con ese documento o usuario.");
+            }
+        } catch (IllegalArgumentException ex) {
+            request.setAttribute("error", ex.getMessage());
+            request.setAttribute("empleado", anterior);
+            request.getRequestDispatcher("UpdateEmpleado.jsp").forward(request, response);
+            return;
+        }
         Empleado empleado = new Empleado();
         empleado.setId(id);
         empleado.setDni(dni);
@@ -83,7 +110,7 @@ public class SvUpdateEmpleado extends HttpServlet{
  
         empleadoInformation.actualizar(empleado);
         System.out.println("modificando");
-        this.accionDefault(request, response);
+        response.sendRedirect(request.getContextPath() + "/SvEmpleado?ok=actualizado");
     }
 
 }

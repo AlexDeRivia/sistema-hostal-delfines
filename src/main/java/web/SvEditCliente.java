@@ -41,13 +41,27 @@ public class SvEditCliente extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         /*Recibir los datos de cliente*/
-        String dniCliente = request.getParameter("dni");
-        String nombreCliente = request.getParameter("nombre");
-        String apellidoCliente = request.getParameter("apellido");
+        String dniCliente;
+        String nombreCliente;
+        String apellidoCliente;
+        try {
+            dniCliente = InputRules.text(request.getParameter("dni"), "El documento");
+            nombreCliente = InputRules.text(request.getParameter("nombre"), "El nombre");
+            apellidoCliente = InputRules.text(request.getParameter("apellido"), "El apellido");
+        } catch (IllegalArgumentException ex) {
+            request.setAttribute("error", ex.getMessage());
+            request.getRequestDispatcher("editarCliente.jsp").forward(request, response);
+            return;
+        }
         
      
         HttpSession session = request.getSession();
         Cliente clienteEditar = (Cliente) session.getAttribute("clienteEditar");
+        if (clienteEditar == null || new BusinessCliente().listado().stream()
+                .anyMatch(c -> c.getId() != clienteEditar.getId() && c.getDni().equalsIgnoreCase(dniCliente))) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Documento repetido o cliente inexistente.");
+            return;
+        }
         
         // Modificar los valores del cliente con los datos recibidos del formulario
         clienteEditar.setDni(dniCliente);

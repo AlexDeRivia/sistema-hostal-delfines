@@ -1,111 +1,22 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="jakarta.servlet.http.*" %>
-<%@ page import="dominio.RegistroReserva" %>
-<% HttpSession sessionr = request.getSession(); %>
-<% RegistroReserva srreserva = (RegistroReserva) sessionr.getAttribute("srreserva");%>
-
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<link rel="stylesheet" type="text/css" href="dist/css/styles.css"/>
-<script type="text/javascript" src="dist/js/funtions.js"/></script>
-<link rel="stylesheet" href="dist/css/stylemcompra.css">
-
-<form class="miform" name="formReserva" action="${pageContext.request.contextPath}/SvUpdateReserva?accion=update" method="post" id="clearReserva">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-    <h1>ACTUALIZAR RESERVA</h1>
-
-    <label for="reservationId">ID:</label>
-    <input type="text" id="reservationId" name="reservationId" required value="${reserva.id}">
-    <br>
-
-    <label for="roomNumber">N� Habitaci�n:</label>
-    <select id="roomNumber" name="roomNumber" required >
-        <c:forEach var="habitacion" items="${habitaciones}">
-            <c:choose>
-                <c:when test="${habitacion.numero eq reserva.habitacion.numero}">
-                    <option value="${habitacion.numero}" data-ventana="${habitacion.ventanaAfuera}" data-camas="${habitacion.numeroCamas}" selected>${reserva.habitacion.numero}</option>
-                </c:when>
-                <c:otherwise>
-                    <option value="${habitacion.numero}" data-ventana="${habitacion.ventanaAfuera}" data-camas="${habitacion.numeroCamas}">${habitacion.numero}</option>
-                </c:otherwise>
-            </c:choose>
-        </c:forEach>
-    </select>
-    <br>
-
-    <label for="checkInTime">Hora de Ingreso:</label>
-    <input type="text" id="checkInTime" name="checkInTime" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]" required value="<c:out value='${reserva.hora_ingreso}'/>">
-    <br>
-
-    <label for="reservedHours">Horas Reservadas:</label>
-    <input type="number" id="reservedHours" name="reservedHours" required value="<c:out value='${reserva.horas_reservadas}'/>">
-    <br>
-
-    <label for="additionalHours">Horas Adicionales:</label>
-    <input type="number" id="additionalHours" name="additionalHours" required>
-    <br>
-
-    <label for="calculateNewCost">Calcular Nuevo Costo:</label>
-    <button type="button" class="calculate" onclick="calcularNuevoCosto()" style="margin-bottom: 10px">Calcular</button>
-    <input type="text" id="newCostResult" name="newCostResult" class="form-control"  readonly>
-    <br>
-
-    <label for="cashPayment">S/. EFECTIVO:</label>
-    <input type="text" id="cashPayment" name="cashPayment">
-    <br>
-
-    <label for="yapePayment">S/. YAPE:</label>
-    <input type="text" id="yapePayment" name="yapePayment">
-    <br>
-
-    <label for="clientName">Cliente:</label>
-    <select id="clientName" name="clientName" required>
-        <c:forEach var="cliente" items="${clientes}">
-
-            <c:choose>
-                <c:when test="${cliente.nombre eq reserva.cliente.nombre}">
-                    <option value="<c:out value='${cliente.nombre}'/> <c:out value='${cliente.apellido}'/>" selected><c:out value="${reserva.cliente.nombre}"/> <c:out value="${reserva.cliente.apellido}"/></option>
-                </c:when>
-                <c:otherwise>
-                    <option value="<c:out value='${cliente.nombre}'/> <c:out value='${cliente.apellido}'/>"><c:out value="${cliente.nombre}"/> <c:out value="${cliente.apellido}"/></option>
-                </c:otherwise>
-            </c:choose>
-        </c:forEach>
-    </select>
-    <br>
-
-    <label for="numberOfGuests">Nro Huespedes:</label>
-    <input type="number" id="numberOfGuests" name="numberOfGuests" required value="${reserva.numeroHuespedes}">
-    <br>
-
-    <label for="reservationStatus">Estado:</label>
-    <select id="reservationStatus" name="reservationStatus" required>
-        <c:forEach var="estado" items="${estados}">
-            <c:choose>
-                <c:when test="${estado eq reserva.estadoReserva}">
-                    <option value="${estado}" selected>${reserva.estadoReserva}</option>
-                </c:when>
-                <c:otherwise>
-                    <option value="${estado}">${estado}</option>
-                </c:otherwise>
-            </c:choose>
-        </c:forEach>
-    </select>
-    <br>
-    <div class="buttons-options">
-        <input class="btn btn-primary" type="submit" value="Actualizar">
-    </div>
-    <div class="col-12">
-        <a href="${pageContext.request.contextPath}/ServletControladorReserva" class="btn btn-danger" style="width: 100%; margin-top: 10px">
-            <span class="icon text-white-50">
-                <i class="fas fa-trash"></i>
-            </span>
-            <span class="text">Cancelar</span>
-        </a>
-    </div>
+<header class="page-header"><div><span class="page-kicker">Reservas · Edición</span><h1>Editar reserva <span class="muted">#${reserva.id}</span></h1><p>Actualiza los datos de la estancia y su estado.</p></div><div class="page-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/ServletControladorReserva"><i class="fas fa-arrow-left"></i> Volver a reservas</a></div></header>
+<c:if test="${not empty error}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${error}"/></span></div></c:if>
+<form action="${pageContext.request.contextPath}/SvUpdateReserva?accion=update" method="post">
+<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><input type="hidden" id="reservationId" name="reservationId" value="${reserva.id}">
+<div class="form-layout"><section class="form-surface"><div class="kicker-line"></div><h2>Datos de la estancia</h2><div class="form-grid">
+<div class="field"><label for="roomNumber">Habitación</label><select id="roomNumber" name="roomId" required><c:forEach var="habitacion" items="${habitaciones}"><option value="${habitacion.id}" data-ventana="${habitacion.ventanaAfuera}" data-camas="${habitacion.numeroCamas}" ${habitacion.id eq reserva.habitacion.id ? 'selected' : ''}>Habitación ${habitacion.numero}</option></c:forEach></select></div>
+<div class="field"><label for="clientName">Cliente</label><select id="clientName" name="clientId" required><c:forEach var="cliente" items="${clientes}"><option value="${cliente.id}" ${cliente.id eq reserva.cliente.id ? 'selected' : ''}><c:out value="${cliente.nombre}"/> <c:out value="${cliente.apellido}"/></option></c:forEach></select></div>
+<div class="field"><label for="checkInDate">Fecha de ingreso</label><input type="date" id="checkInDate" name="checkInDate" value="${reserva.fechaIngreso}" required></div>
+<div class="field"><label for="checkInTime">Hora de ingreso</label><input type="text" id="checkInTime" name="checkInTime" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]" value="<c:out value='${reserva.hora_ingreso}'/>" required></div>
+<div class="field"><label for="reservedHours">Duración</label><select id="reservedHours" name="reservedHours" required><option value="3" ${reserva.horas_reservadas eq '3' ? 'selected' : ''}>3 horas</option><option value="24" ${reserva.horas_reservadas eq '24' ? 'selected' : ''}>24 horas</option></select></div>
+<div class="field"><label for="numberOfGuests">Número de huéspedes</label><input type="number" min="1" id="numberOfGuests" name="numberOfGuests" value="${reserva.numeroHuespedes}" required></div>
+<div class="field span-2"><label for="reservationStatus">Estado</label><select id="reservationStatus" name="reservationStatus" required><c:forEach var="estado" items="${estados}"><option value="${estado}" ${estado eq reserva.estadoReserva ? 'selected' : ''}>${estado}</option></c:forEach></select></div>
+</div><div class="form-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/ServletControladorReserva">Cancelar</a><button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Guardar cambios</button></div></section>
+<aside class="summary-panel"><span class="page-kicker">Resumen de pago</span><h2>Costo de la estancia</h2><label class="summary-label" for="costResult">Estancia</label><input type="text" id="costResult" name="costResult" readonly><button class="btn btn-secondary" type="button" onclick="calcularCosto()"><i class="fas fa-sync-alt"></i> Recalcular</button><div class="field" style="margin-top:24px"><label for="cashPayment">Efectivo · S/</label><input type="number" min="0" step="0.01" id="cashPayment" name="cashPayment" value="${reserva.costoEfectivo}"></div><div class="field"><label for="yapePayment">Yape · S/</label><input type="number" min="0" step="0.01" id="yapePayment" name="yapePayment" value="${reserva.costoYape}"></div></aside></div>
 </form>
 <%@include file="components/footer.jsp"%>

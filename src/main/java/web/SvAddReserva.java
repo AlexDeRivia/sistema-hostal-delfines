@@ -10,6 +10,7 @@ import dominio.EstadoReserva;
 import dominio.Habitacion;
 import dominio.RegistroReserva;
 import dominio.Reserva;
+import dominio.ReservaService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.time.LocalDate;
 import org.json.JSONObject;
 
 @WebServlet("/SvAddReserva")
@@ -50,13 +52,12 @@ public class SvAddReserva extends HttpServlet{
     
     private void accionDefault(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        if (session.getAttribute("srreserva") == null) {
-            session.setAttribute("srreserva", new ServletControladorReserva().iniciarRegistroReserva());
-        }
+        session.setAttribute("srreserva", new ServletControladorReserva().iniciarRegistroReserva(request));
         List<Habitacion> habitaciones = new BusinessHabitacion().getHabitacionesDisponibles();
         List<Cliente> clientes = new BusinessCliente().listado();
         request.setAttribute("habitaciones", habitaciones);
         request.setAttribute("clientes", clientes);
+        request.setAttribute("fechaHoy", LocalDate.now().toString());
         request.getRequestDispatcher("AddReserva.jsp").forward(request, response);
         //response.sendRedirect("AddReserva.jsp");
         System.out.println("comenzando");
@@ -72,7 +73,12 @@ public class SvAddReserva extends HttpServlet{
         if (accion != null) {
             switch (accion) {
                 case "add":
-                    this.agregarReserva(request, response);
+                    try {
+                        this.agregarReserva(request, response);
+                    } catch (IllegalArgumentException ex) {
+                        request.setAttribute("error", ex.getMessage());
+                        this.accionDefault(request, response);
+                    }
                     break;
                 case "obtenerCosto":
                     this.calcularCosto(request, response);
@@ -91,8 +97,12 @@ public class SvAddReserva extends HttpServlet{
     }
 
     private void calcularCosto(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Habitacion habitacion = habitacionInformation.getHabitacionByNumero(Integer.parseInt(request.getParameter("roomNumber")));
+        Habitacion habitacion = habitacionInformation.buscar(Integer.parseInt(request.getParameter("roomId")));
         String horasReservadas = request.getParameter("reservedHours");
+        if (habitacion == null || (!"3".equals(horasReservadas) && !"24".equals(horasReservadas))) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         System.out.println("habitacion: " + habitacion.getNumero());
         System.out.println("horas: " + horasReservadas);
         CostoReserva crsv = new CostoReserva();
@@ -110,79 +120,23 @@ public class SvAddReserva extends HttpServlet{
     }
 
     private void agregarReserva(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //Recuperamos datos del formulario
-        Integer nHabitacion = Integer.valueOf(request.getParameter("roomNumber"));
-        
-        // Intenta analizar el texto del campo de entrada de tiempo en un objeto LocalTime
-        //LocalTime horaIngreso = LocalTime.parse(request.getParameter("checkInTime"), DateTimeFormatter.ofPattern("H:mm"));
-        System.out.println(request.getParameter("checkInTime"));
-        //LocalTime horaIngreso = LocalTime.parse(request.getParameter("checkInTime"), DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String hora_ingreso = request.getParameter("checkInTime");
-        String horas_reservadas = request.getParameter("reservedHours");
-        double costoEfectivo;
-        double costoYape;
-        try {
-            costoEfectivo = Double.parseDouble(request.getParameter("cashPayment"));
-        } catch (Exception e) {
-            costoEfectivo = 0;
-        }
-        try {
-            costoYape = Double.parseDouble(request.getParameter("yapePayment"));
-        } catch (Exception e) {
-            costoYape = 0;
-        }
-        String nombrecliente = request.getParameter("clientName");
-        int numero_huespedes = Integer.parseInt(request.getParameter("numberOfGuests"));
-        EstadoReserva estado_reserva = EstadoReserva.PENDIENTE;
-
-        //Liquidacion
-        HttpSession sessionr = request.getSession();
-        RegistroReserva rreserva = new ServletControladorReserva().iniciarRegistroReserva();
-        if (rreserva.getId() == 0) {
-            rreserva = inforreserva.crear(rreserva);
-        }
-        sessionr.setAttribute("srreserva", rreserva);
-        System.out.println(rreserva);
-        rreserva.setLiquidacion(rreserva.getLiquidacion() + costoEfectivo + costoYape);
-        System.out.println("Liquidación: "+rreserva.getLiquidacion());
-        inforreserva.actualizar(rreserva);
-        
-        //Guardamos datos
-        BusinessHabitacion infoHabitacion = new BusinessHabitacion();
-        Habitacion habitacion = infoHabitacion.getHabitacionByNumero(nHabitacion);
-        BusinessCliente infoCliente = new BusinessCliente();
-        Cliente cliente = infoCliente.getClienteByNombre(nombrecliente);
-
-        // Verificar si habitacion es null antes de continuar
-        if (habitacion != null) {
-            habitacion.setDisponible(false);
-            infoHabitacion.actualizar(habitacion);
-        } else {
-            // Manejar el caso cuando habitacion es null
-            System.out.println("La habitación con número " + nHabitacion + " no fue encontrada.");
-        }
-
         Reserva reserva = new Reserva();
+        reserva.setNumeroHuespedes(Integer.parseInt(request.getParameter("numberOfGuests")));
+        reserva.setCostoEfectivo(pago(request.getParameter("cashPayment")));
+        reserva.setCostoYape(pago(request.getParameter("yapePayment")));
+        reserva.setHoras_reservadas(request.getParameter("reservedHours"));
+        reserva.setFechaIngreso(request.getParameter("checkInDate"));
+        reserva.setHora_ingreso(request.getParameter("checkInTime"));
+        reserva.setEstadoReserva(EstadoReserva.PENDIENTE);
+        reserva.setCliente(new BusinessCliente().buscar(Integer.parseInt(request.getParameter("clientId"))));
+        reserva.setHabitacion(habitacionInformation.buscar(Integer.parseInt(request.getParameter("roomId"))));
+        RegistroReserva registro = new ServletControladorReserva().iniciarRegistroReserva(request);
+        ReservaService.crear(reserva, registro);
+        response.sendRedirect(request.getContextPath() + "/ServletControladorReserva?ok=creada");
+    }
 
-        reserva.setNumeroHuespedes(numero_huespedes);
-        reserva.setCostoEfectivo(costoEfectivo);
-        reserva.setCostoYape(costoYape);
-        reserva.setHoras_reservadas(horas_reservadas);
-        reserva.setHora_ingreso(hora_ingreso);
-        reserva.setEstadoReserva(estado_reserva);
-        reserva.setCliente(cliente);
-        reserva.setHabitacion(habitacion);
-        System.out.println("registro reserva " +rreserva.getId());
-        reserva.setRegistroreserva_id(rreserva.getId());
-
-        BusinessReserva inforeserva = new BusinessReserva();
-        inforeserva.crear(reserva);
-
-        //Redirigimos hacia la pagina por default
-        this.accionDefault(request, response);
-        System.out.println("se guardo los datos");
-        // Continúa con el resto de tu lógica aquí
-
+    private static double pago(String valor) {
+        return valor == null || valor.isBlank() ? 0 : Double.parseDouble(valor);
     }
 
 }

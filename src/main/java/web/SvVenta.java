@@ -30,14 +30,8 @@ public class SvVenta extends HttpServlet {
     private BusinessCliente clienteInformation;
     private BusinessRegistroVenta rventaInformation;
     private BusinessVenta ventaInformation;
-    private Empleado empleadoSession;
 
     public SvVenta() {
-        this.empleadoSession = new Empleado();
-        empleadoSession.setId(1);
-        empleadoSession.setDni("75465361");
-        empleadoSession.setNombre("Nilton");
-        empleadoSession.setUsername("admin");
         productoInformation = new BusinessProducto();
         clienteInformation = new BusinessCliente();
         rventaInformation = new BusinessRegistroVenta();
@@ -56,15 +50,15 @@ public class SvVenta extends HttpServlet {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
-        RegistroVenta rventa = this.iniciarModuloVenta(false);
-        getVenta(request);
+        RegistroVenta rventa = this.iniciarModuloVenta(false, request);
+        Venta venta = getVenta(request);
         List<Producto> productos = productoInformation.listado();
         List<Cliente> clientes = clienteInformation.listado();
         request.setAttribute("productos", productos);
         request.setAttribute("clientes", clientes);
         request.setAttribute("rventa", rventa);
+        request.setAttribute("totalVenta", venta.total());
 
-        System.out.println("accion");
         if (accion != null) {
             switch (accion) {
                 case "actualizar":
@@ -102,11 +96,11 @@ public class SvVenta extends HttpServlet {
         processRequest(request, response);
 
         String accion = request.getParameter("accion");
-        if (accion != null) {
-            switch (accion) {
+        try {
+            if (accion != null) {
+                switch (accion) {
                 case "agregar":
                     this.agregarProducto(request, response);
-                    System.out.println("Agregando");
                     break;
                 case "update":
                     this.update(request, response);
@@ -119,25 +113,30 @@ public class SvVenta extends HttpServlet {
                     HttpSession session = request.getSession();
                     session.removeAttribute("venta");
                     session.removeAttribute("total");
-                    break;
+                    response.sendRedirect(request.getContextPath() + "/SvVenta?ok=guardada");
+                    return;
                 default:
+                }
             }
+        } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
+            request.getSession().setAttribute("errorVenta", ex.getMessage());
         }
         response.sendRedirect(request.getContextPath() + "/SvVenta");
     }
 
-    private RegistroVenta iniciarModuloVenta(boolean guardar) {
+    private RegistroVenta iniciarModuloVenta(boolean guardar, HttpServletRequest request) {
         //CREACION DEL REGISTRO DE COMPRA DIARIO
         RegistroVenta rvTemp = null;
         Turno turno = Turno.valueOf(this.obtenerTurno());
-        rvTemp = rventaInformation.registroVentaDiario(turno);
+        Empleado operador = OperadorActual.desde(request);
+        rvTemp = rventaInformation.registroVentaDiario(turno, operador.getId());
         if (rvTemp != null) {
             return rvTemp;
         } else {
             rvTemp = new RegistroVenta();
             rvTemp.setFecha(this.obtenerFecha());
             rvTemp.setTurno(turno);
-            rvTemp.setEmpleado(empleadoSession);
+            rvTemp.setEmpleado(operador);
             return guardar ? rventaInformation.crear(rvTemp) : rvTemp;
         }
     }
@@ -155,17 +154,21 @@ public class SvVenta extends HttpServlet {
     private void agregarProducto(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Venta venta = getVenta(request);
         //Recuperamos datos del formulario
-        String cliente = String.valueOf(request.getParameter("cliente_name"));
-        Cliente c = clienteInformation.getClienteByNombre(cliente);
-        String producto = String.valueOf(request.getParameter("producto_name"));
-        Producto p = productoInformation.getProductoByNombre(producto);
-        String cant = request.getParameter("cantidad");
-        int cantidad = 0;
-        if (!cant.equals(" ")) {
-            cantidad = Integer.parseInt(cant);
+        Cliente c = clienteInformation.buscar(Integer.parseInt(request.getParameter("clientId")));
+        Producto p = productoInformation.buscar(Integer.parseInt(request.getParameter("productId")));
+        int cantidad = Integer.parseInt(request.getParameter("cantidad"));
+        if (c == null || p == null || cantidad <= 0) {
+            throw new IllegalArgumentException("Selecciona cliente, producto y cantidad válida.");
         }
-
-        venta.setId(1);
+        if (venta.getCliente() != null && venta.getCliente().getId() != c.getId()) {
+            throw new IllegalArgumentException("Una venta solo puede tener un cliente.");
+        }
+        long enCarrito = venta.getLineaVentas().stream()
+                .filter(linea -> linea.getProducto().getId() == p.getId())
+                .mapToLong(LineaVenta::getCantidad).sum();
+        if ((long) cantidad + enCarrito > p.getStock()) {
+            throw new IllegalArgumentException("No hay stock suficiente para esta venta.");
+        }
         venta.setCliente(c);
         venta.agregarLineaVenta(new LineaVenta(cantidad, p, p.getPrecioVenta()));
 
@@ -198,7 +201,18 @@ public class SvVenta extends HttpServlet {
         Venta venta = getVenta(request);
         int lineaVenta_id = Integer.parseInt(request.getParameter("posicion"));
         int nuevaCantidad = Integer.parseInt(request.getParameter("cantidad"));
-        venta.getLineaVentas().get(lineaVenta_id).setCantidad(nuevaCantidad);
+        if (nuevaCantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
+        }
+        LineaVenta linea = venta.getLineaVentas().get(lineaVenta_id);
+        int anterior = linea.getCantidad();
+        linea.setCantidad(nuevaCantidad);
+        try {
+            validarCarrito(venta);
+        } catch (IllegalArgumentException ex) {
+            linea.setCantidad(anterior);
+            throw ex;
+        }
 
         HttpSession session = request.getSession();
         session.setAttribute("total", venta.total());
@@ -206,13 +220,33 @@ public class SvVenta extends HttpServlet {
 
     private void guardar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Venta venta = getVenta(request);
-        if (!venta.getLineaVentas().isEmpty()) {
-            RegistroVenta rventa = iniciarModuloVenta(true);
-            rventa.setLiquidacion(rventa.getLiquidacion() + venta.total());
-            rventaInformation.actualizar(rventa);
-
+        synchronized (Producto.class) {
+            validarCarrito(venta);
+            RegistroVenta rventa = iniciarModuloVenta(true, request);
             venta.setId_registroVenta(rventa.getId());
             ventaInformation.crear(venta);
+            rventa.setLiquidacion(rventa.getLiquidacion() + venta.total());
+            rventaInformation.actualizar(rventa);
+        }
+    }
+
+    private void validarCarrito(Venta venta) {
+        if (venta.getCliente() == null || venta.getLineaVentas().isEmpty()) {
+            throw new IllegalArgumentException("Agrega al menos un producto a la venta.");
+        }
+        java.util.Map<Integer, Long> cantidades = new java.util.HashMap<>();
+        for (LineaVenta linea : venta.getLineaVentas()) {
+            if (linea.getCantidad() <= 0) {
+                throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
+            }
+            int id = linea.getProducto().getId();
+            cantidades.merge(id, (long) linea.getCantidad(), Long::sum);
+        }
+        for (java.util.Map.Entry<Integer, Long> item : cantidades.entrySet()) {
+            Producto producto = productoInformation.buscar(item.getKey());
+            if (producto == null || item.getValue() > producto.getStock()) {
+                throw new IllegalArgumentException("No hay stock suficiente para esta venta.");
+            }
         }
     }
 }

@@ -1,143 +1,30 @@
-
-<!-- Page Wrapper -->
-<div id="wrapper">
-
-    <!-- Sidebar -->
-    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
-        <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.jsp">
-            <div class="sidebar-brand-icon rotate-n-15">
-                <i class="fas fa-solid fa-hotel"></i>
-            </div>
-            <div class="sidebar-brand-text mx-3">Hostal los Delfines</div>
+<div class="app-shell" id="appShell">
+    <aside class="app-sidebar" id="appSidebar" aria-label="Navegación principal">
+        <a class="app-brand" href="${pageContext.request.contextPath}/index.jsp" aria-label="Hostal Delfines, ir al inicio">
+            <span class="brand-monogram" aria-hidden="true">HD</span>
+            <span class="brand-copy"><strong>Hostal Delfines</strong><small>Sistema de gestión</small></span>
         </a>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider my-0">
-
-        <!-- Nav Item - Dashboard -->
-        <li class="nav-item active">
-            <a class="nav-link" href="${pageContext.request.contextPath}">
-                <i class="fas fa-fw fa-home"></i>
-                <span>Inicio</span></a>
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Opciones
-        </div>
-
-        <% if (admin != null) { %>
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse0"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-user-tie"></i>
-                <span>Empleados</span>
-            </a>
-            <div id="collapse0" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvEmpleado">Ver empleados</a>
-                    <a class="collapse-item" href="AddEmpleado.jsp">Agregar empleado</a>
-                </div>
-            </div>
-        </li>
-        <%}%>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse1"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-user"></i>
-                <span>Clientes</span>
-            </a>
-            <div id="collapse1" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvCliente">Ver clientes</a>
-                    <a class="collapse-item" href="agregarCliente.jsp">Agregar cliente</a>
-                </div>
-            </div>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse2"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-box"></i>
-                <span>Productos</span>
-            </a>
-            <div id="collapse2" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvProducto">Ver productos</a>
-                    <a class="collapse-item" href="AddProducto.jsp">Agregar producto</a>
-                </div>
-            </div>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-book"></i>
-                <span>Reservas</span>
-            </a>
-            <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/ServletControladorReserva">Ver Reserva</a>
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvAddReserva">Agregar Reserva</a>
-                </div>
-            </div>
-        </li>
-
-        <% if (admin != null) { %>
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse4"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-bed"></i>
-                <span>Habitaciones</span>
-            </a>
-            <div id="collapse4" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvHabitacion">Ver habitaciones</a>
-                    <a class="collapse-item" href="agregarHabitacion.jsp">Agregar habitaciones</a>
-                </div>
-            </div>
-        </li>
-        <%}%>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse5"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-store"></i>
-                <span>Compras</span>
-            </a>
-            <div id="collapse5" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvCompra">Agregar Compra</a>
-                </div>
-            </div>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse6"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-cash-register"></i>
-                <span>Ventas</span>
-            </a>
-            <div id="collapse6" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="${pageContext.request.contextPath}/SvVenta">Agregar Venta</a>
-                </div>
-            </div>
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-        <!-- Sidebar Toggler (Sidebar) -->
-        <div class="text-center d-none d-md-inline">
-            <button class="rounded-circle border-0" id="sidebarToggle"></button>
-        </div>
-
-    </ul>
-    <!-- End of Sidebar -->
+        <div class="sidebar-rule" aria-hidden="true"></div>
+        <nav class="app-nav">
+            <span class="app-nav-label">GENERAL</span>
+            <a class="app-nav-link" data-nav="inicio" href="${pageContext.request.contextPath}/index.jsp"><i class="fas fa-compass" aria-hidden="true"></i><span>Inicio</span></a>
+            <span class="app-nav-label">RECEPCIÓN</span>
+            <a class="app-nav-link" data-nav="reservas" href="${pageContext.request.contextPath}/ServletControladorReserva"><i class="fas fa-calendar-check" aria-hidden="true"></i><span>Reservas</span></a>
+            <% if (admin != null) { %>
+            <a class="app-nav-link" data-nav="habitaciones" href="${pageContext.request.contextPath}/SvHabitacion"><i class="fas fa-door-open" aria-hidden="true"></i><span>Habitaciones</span></a>
+            <% } %>
+            <a class="app-nav-link" data-nav="clientes" href="${pageContext.request.contextPath}/SvCliente"><i class="fas fa-address-book" aria-hidden="true"></i><span>Clientes</span></a>
+            <span class="app-nav-label">COMERCIAL</span>
+            <a class="app-nav-link" data-nav="ventas" href="${pageContext.request.contextPath}/SvVenta"><i class="fas fa-receipt" aria-hidden="true"></i><span>Ventas</span></a>
+            <a class="app-nav-link" data-nav="compras" href="${pageContext.request.contextPath}/SvCompra"><i class="fas fa-box-open" aria-hidden="true"></i><span>Compras</span></a>
+            <a class="app-nav-link" data-nav="productos" href="${pageContext.request.contextPath}/SvProducto"><i class="fas fa-boxes" aria-hidden="true"></i><span>Productos</span></a>
+            <a class="app-nav-link" data-nav="proveedores" href="${pageContext.request.contextPath}/SvProveedor"><i class="fas fa-truck" aria-hidden="true"></i><span>Proveedores</span></a>
+            <a class="app-nav-link" data-nav="movimientos" href="${pageContext.request.contextPath}/SvMovimientos"><i class="fas fa-history" aria-hidden="true"></i><span>Movimientos</span></a>
+            <% if (admin != null) { %>
+            <span class="app-nav-label">ADMINISTRACIÓN</span>
+            <a class="app-nav-link" data-nav="empleados" href="${pageContext.request.contextPath}/SvEmpleado"><i class="fas fa-users-cog" aria-hidden="true"></i><span>Empleados</span></a>
+            <% } %>
+        </nav>
+        <div class="sidebar-foot"><span class="sidebar-foot-mark" aria-hidden="true"></span>Operación junto al mar</div>
+    </aside>
+    <button class="sidebar-backdrop" type="button" aria-label="Cerrar menú" data-close-sidebar></button>

@@ -20,6 +20,10 @@ public class Venta {
         return total_final;
     }
 
+    public double getTotal() {
+        return total();
+    }
+
     public void agregarLineaVenta(LineaVenta lv){
         lineaVentas.add(lv);
     }

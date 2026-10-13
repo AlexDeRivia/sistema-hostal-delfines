@@ -6,6 +6,7 @@ import dominio.Producto;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -25,23 +26,27 @@ public class LineaCompraDaoAT extends Dao<LineaCompra> {
             int cantidad = obj.getCantidad();
             Producto producto = obj.getProducto();
             int compraId = obj.getCompra_id();
+            ProductoDaoAT productoDao = new ProductoDaoAT();
+            Producto actual = productoDao.buscar(producto.getId());
+            if (actual == null || cantidad <= 0 || (long) actual.getStock() + cantidad > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException("Cantidad o producto inválido en la compra.");
+            }
 
             // Construir la línea para escribir en el archivo
-            String line = id + "," + cantidad + "," + producto.getId() + "," + compraId;
+            String line = id + "," + cantidad + "," + producto.getId() + "," + compraId
+                    + "," + obj.getPrecioUnitario();
 
             // Escribir la línea en el archivo
             bw.write(line);
             bw.newLine();
 
             // Actualizar el stock del producto
-            ProductoDaoAT productoDao = new ProductoDaoAT();
-            int nuevoStock = producto.getStock() + cantidad;
-            producto.setStock(nuevoStock);
-            productoDao.actualizar(producto);
+            actual.setStock(actual.getStock() + cantidad);
+            productoDao.actualizar(actual);
 
             bw.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException(ex);
         }
         return obj;
     }
@@ -101,7 +106,7 @@ public class LineaCompraDaoAT extends Dao<LineaCompra> {
             while ((line = br.readLine()) != null) {
                 String[] partes = line.split(",");
 
-                if (partes.length == 4) { // Asegurarse de que la línea tenga el formato correcto
+                if (partes.length >= 4) { // El formato antiguo no guardaba el precio.
                     LineaCompra lineaCompra = new LineaCompra();
                     lineaCompra.setId(Integer.parseInt(partes[0]));
                     lineaCompra.setCantidad(Integer.parseInt(partes[1]));
@@ -111,6 +116,8 @@ public class LineaCompraDaoAT extends Dao<LineaCompra> {
                     ProductoDaoAT productoDao = new ProductoDaoAT(); // Asume que existe un DAO para Producto
                     Producto producto = productoDao.buscar(idProducto);
                     lineaCompra.setProducto(producto);
+                    lineaCompra.setPrecioUnitario(partes.length >= 5
+                            ? Double.parseDouble(partes[4]) : producto.getPrecioCompra());
 
                     lineaCompra.setCompra_id(Integer.parseInt(partes[3]));
 
@@ -146,7 +153,8 @@ public class LineaCompraDaoAT extends Dao<LineaCompra> {
         try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(PATH + "lineascompra.txt"))) {
             for (LineaCompra lineaCompra : lineasCompras) {
                 String line = lineaCompra.getId() + "," + lineaCompra.getCantidad() + ","
-                        + lineaCompra.getProducto().getId() + "," + lineaCompra.getCompra_id();
+                        + lineaCompra.getProducto().getId() + "," + lineaCompra.getCompra_id()
+                        + "," + lineaCompra.getPrecioUnitario();
                 bw.write(line);
                 bw.newLine();
             }

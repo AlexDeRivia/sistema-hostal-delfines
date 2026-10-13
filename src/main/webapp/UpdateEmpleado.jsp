@@ -1,41 +1,10 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<link rel="stylesheet" type="text/css" href="dist/css/styles.css"/>
-<script type="text/javascript" src="dist/js/funtions.js"/></script>
-
-<form class="miform" name="formReserva" action="${pageContext.request.contextPath}/SvUpdateEmpleado?accion=update" method="post" id="clearReserva">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-    <h1>ACTUALIZAR EMPLEADO</h1>
-
-    <label for="empleado_name">ID</label>
-    <input type="text" id="idE" name="idE" value="${empleado.id}" readonly>
-    <br>
-    <label for="producto_name">DNI</label>
-    <input type="text" id="dniE" name="dniE" value ="<c:out value='${empleado.dni}'/>">
-    <br>
-
-    <label for="producto_name">Nombre</label>
-    <input type="text" id="nombreE" name="nombreE" value ="<c:out value='${empleado.nombre}'/>">
-    <br>
-
-    <label for="pventa">Apellido</label>
-    <input type="text" id="apellidoE" name="apellidoE" value ="<c:out value='${empleado.apellido}'/>">
-    <br>
-
-    <label for="pcompra">Usuario</label>
-    <input type="text" id="usuarioE" name="usuarioE" value ="<c:out value='${empleado.username}'/>">
-    <br>
-
-    <label for="categoriaStatus">Clave</label>
-    <input type="password" id="claveE" name="claveE" autocomplete="new-password">
-    <br>
-
-    <input type="submit" value="Actualizar">
-    <button type="button" class="cancel" onclick="cancelUpdate()">Cancelar</button>
-</form>
-
+<header class="page-header"><div><span class="page-kicker">Equipo · Edición</span><h1>Editar empleado</h1><p>Actualiza su identidad o acceso.</p></div><div class="page-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvEmpleado"><i class="fas fa-arrow-left"></i> Volver</a></div></header>
+<c:if test="${not empty error}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${error}"/></span></div></c:if>
+<section class="form-surface" style="max-width:880px"><div class="kicker-line"></div><form action="${pageContext.request.contextPath}/SvUpdateEmpleado?accion=update" method="post"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><div class="form-grid"><div class="field"><label for="idE">ID</label><input id="idE" name="idE" type="text" value="${empleado.id}" readonly></div><div class="field"><label for="dniE">DNI</label><input id="dniE" name="dniE" type="text" value="<c:out value='${empleado.dni}'/>" required></div><div class="field"><label for="nombreE">Nombre</label><input id="nombreE" name="nombreE" type="text" value="<c:out value='${empleado.nombre}'/>" required></div><div class="field"><label for="apellidoE">Apellido</label><input id="apellidoE" name="apellidoE" type="text" value="<c:out value='${empleado.apellido}'/>" required></div><div class="field"><label for="usuarioE">Usuario</label><input id="usuarioE" name="usuarioE" type="text" value="<c:out value='${empleado.username}'/>" required></div><div class="field"><label for="claveE">Nueva clave</label><input id="claveE" name="claveE" type="password" autocomplete="new-password"></div></div><div class="form-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvEmpleado">Cancelar</a><button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Guardar cambios</button></div></form></section>
 <%@include file="components/footer.jsp"%>

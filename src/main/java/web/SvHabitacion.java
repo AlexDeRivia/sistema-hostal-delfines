@@ -41,12 +41,25 @@ public class SvHabitacion extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int numero = Integer.parseInt(request.getParameter("numero"));
-        int numeroCamas = Integer.parseInt(request.getParameter("numeroCamas"));
+        int numero;
+        int numeroCamas;
+        try {
+            numero = Integer.parseInt(request.getParameter("numero"));
+            numeroCamas = Integer.parseInt(request.getParameter("numeroCamas"));
+        } catch (NumberFormatException ex) {
+            request.setAttribute("error", "Indica números válidos para la habitación y las camas.");
+            request.getRequestDispatcher("agregarHabitacion.jsp").forward(request, response);
+            return;
+        }
+        if (numero <= 0 || numeroCamas <= 0 || new BusinessHabitacion().getHabitacionByNumero(numero) != null) {
+            request.setAttribute("error", "El número de habitación debe ser único y los valores mayores que cero.");
+            request.getRequestDispatcher("agregarHabitacion.jsp").forward(request, response);
+            return;
+        }
         String ventanaAfueraStr = request.getParameter("ventanaAfuera");
-        boolean ventanaAfuera = ventanaAfueraStr.equals("true");
+        boolean ventanaAfuera = Boolean.parseBoolean(ventanaAfueraStr);
         String disponibleStr = request.getParameter("disponible");
-        boolean disponible = disponibleStr.equals("true");
+        boolean disponible = Boolean.parseBoolean(disponibleStr);
     
           // Crear una instancia de Habitacion con los parámetros recibidos
         Habitacion nuevaHabitacion = new Habitacion(numero, numeroCamas, ventanaAfuera,disponible);

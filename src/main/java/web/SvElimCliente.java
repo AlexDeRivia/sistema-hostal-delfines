@@ -29,6 +29,15 @@ public class SvElimCliente extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
        int id = Integer.parseInt(request.getParameter("id"));
+        boolean usado = new datos.ReservaDaoAT().listado().stream()
+                .anyMatch(reserva -> reserva.getCliente() != null && reserva.getCliente().getId() == id)
+                || new datos.VentaDaoAT().listado().stream()
+                .anyMatch(venta -> venta.getCliente() != null && venta.getCliente().getId() == id);
+        if (usado) {
+            request.getSession().setAttribute("errorCliente", "No se puede eliminar un cliente con reservas o ventas.");
+            response.sendRedirect("SvCliente");
+            return;
+        }
 
         // Crear una instancia de Cliente con el ID proporcionado
         Cliente clienteEliminar = new Cliente();

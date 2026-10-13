@@ -1,5 +1,7 @@
 package dominio;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -12,6 +14,7 @@ public class Reserva {
     private String horas_reservadas;
     private String hora_ingreso;
     private String hora_salida;
+    private String fechaIngreso;
     private EstadoReserva estadoReserva;
     private Cliente cliente;
     private Habitacion habitacion;
@@ -62,6 +65,32 @@ public class Reserva {
         LocalTime horaSalida = horaIngreso.plusHours(Long.parseLong(horas_reservadas));
         hora_salida = horaSalida.format(formatter);
         return hora_salida;
+    }
+
+    public String getFechaIngreso() {
+        return fechaIngreso;
+    }
+
+    public void setFechaIngreso(String fechaIngreso) {
+        this.fechaIngreso = fechaIngreso;
+    }
+
+    public String getFechaSalida() {
+        if (fechaIngreso == null || fechaIngreso.isBlank()) {
+            return "";
+        }
+        return LocalDate.parse(fechaIngreso)
+                .atTime(LocalTime.parse(hora_ingreso, DateTimeFormatter.ofPattern("HH:mm:ss")))
+                .plusHours(Long.parseLong(horas_reservadas)).toLocalDate().toString();
+    }
+
+    public LocalDateTime getInicio() {
+        return LocalDate.parse(fechaIngreso)
+                .atTime(LocalTime.parse(hora_ingreso, DateTimeFormatter.ofPattern("HH:mm:ss")));
+    }
+
+    public LocalDateTime getFin() {
+        return getInicio().plusHours(Long.parseLong(horas_reservadas));
     }
 
     public int getRegistroreserva_id() {

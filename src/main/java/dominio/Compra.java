@@ -13,8 +13,15 @@ public class Compra {
     }
     
     public double total(){
-        
-        return 0.0;
+        double total = 0;
+        for (LineaCompra linea : lineaCompras) {
+            total += linea.subtotal();
+        }
+        return total;
+    }
+
+    public double getTotal() {
+        return total();
     }
 
     public void agregarLineaCompra(LineaCompra lc){

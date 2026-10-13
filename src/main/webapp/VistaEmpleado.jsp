@@ -1,89 +1,10 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
-<%@taglib prefix="e" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<script type="text/javascript" src="dist/js/funtions.js"/></script>
-
-<div id="module-container">
-    <div id="header">
-        <h1 class="header-h1">MODULO EMPLEADOS</h1>
-    </div>
-    <div id="wrapper">
-        <div id="content-wrapper" class="d-flex flex-column">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Formulario de Empleados</h6>
-                </div>
-
-                <div class="card-body">
-                    <a href="${pageContext.request.contextPath}/SvAddEmpleado" class="btn btn-primary btn-icon-split">
-                        <span class="icon text-white-50">
-                            <i class="fas fa-flag"></i>
-                        </span>
-                        <span class="text">Nuevo</span>
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>DNI</th>
-                                    <th>Nombre</th>
-                                    <th>Apellido</th>
-                                    <th>Usuario</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <e:forEach var="empleado" items="${empleados}">
-                                    <tr>
-                                        <td>${empleado.id}</td> 
-                                        <th><e:out value="${empleado.dni}"/></th>
-                                        <td><e:out value="${empleado.nombre}"/></td>
-                                        <td><e:out value="${empleado.apellido}"/></td>
-                                        <td><e:out value="${empleado.username}"/></td>
-                                        <td>
-                                            <a href="${pageContext.request.contextPath}/SvUpdateEmpleado?accion=actualizar&idEmpleado=${empleado.id}" class="btn btn-secondary btn-icon-split">
-                                                <span class="icon text-white-50">
-                                                    <i class="fas fa-arrow-right"></i>
-                                                </span>
-                                                <span class="text">Actualizar</span>
-                                            </a>
-                                            <form action="${pageContext.request.contextPath}/SvDeleteEmpleado?accion=eliminar" method="post" class="d-inline">
-                                                <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-                                                <input type="hidden" name="idEmpleado" value="${empleado.id}">
-                                                <button type="submit" class="btn btn-danger btn-icon-split">
-                                                <span class="icon text-white-50">
-                                                    <i class="fas fa-trash"></i>
-                                                </span>
-                                                <span class="text">Eliminar</span>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </e:forEach>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="my-2"></div>
-                    <a href="index.jsp" class="btn btn-success btn-icon-split">
-                        <span class="icon text-white-50">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span class="text">Regresar</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<header class="page-header"><div><span class="page-kicker">Administración · Equipo</span><h1>Empleados</h1><p>Personas con acceso a la operación del hostal.</p></div><div class="page-actions"><a class="btn btn-primary" href="${pageContext.request.contextPath}/SvAddEmpleado"><i class="fas fa-plus"></i> Nuevo empleado</a></div></header>
+<c:if test="${not empty param.ok}"><div class="notice notice-success" role="status"><i class="fas fa-check-circle"></i><span>Empleado <c:out value="${param.ok}"/> correctamente.</span></div></c:if>
+<section class="surface"><div class="section-title"><h2>Equipo registrado</h2></div><c:choose><c:when test="${empty empleados}"><div class="empty-state"><i class="fas fa-users"></i><h3>Sin empleados</h3><p>Agrega la primera persona del equipo.</p><a class="btn btn-primary" href="${pageContext.request.contextPath}/SvAddEmpleado">Crear empleado</a></div></c:when><c:otherwise><div class="table-responsive"><table><thead><tr><th>ID</th><th>DNI</th><th>Nombre</th><th>Usuario</th><th>Acciones</th></tr></thead><tbody><c:forEach var="empleado" items="${empleados}"><tr><td class="data-code">#${empleado.id}</td><td><c:out value="${empleado.dni}"/></td><td><c:out value="${empleado.nombre}"/> <c:out value="${empleado.apellido}"/></td><td><c:out value="${empleado.username}"/></td><td class="actions-cell"><a class="btn btn-secondary btn-sm" href="${pageContext.request.contextPath}/SvUpdateEmpleado?accion=actualizar&amp;idEmpleado=${empleado.id}">Editar</a><form action="${pageContext.request.contextPath}/SvDeleteEmpleado?accion=eliminar" method="post" data-confirm="¿Eliminar este empleado y su acceso?"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><input type="hidden" name="idEmpleado" value="${empleado.id}"><button class="btn btn-danger btn-sm" type="submit">Eliminar</button></form></td></tr></c:forEach></tbody></table></div></c:otherwise></c:choose></section>
 <%@include file="components/footer.jsp"%>

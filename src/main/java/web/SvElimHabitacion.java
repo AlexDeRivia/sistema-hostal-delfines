@@ -29,6 +29,13 @@ public class SvElimHabitacion extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
+        boolean usada = new datos.ReservaDaoAT().listado().stream()
+                .anyMatch(reserva -> reserva.getHabitacion() != null && reserva.getHabitacion().getId() == id);
+        if (usada) {
+            request.getSession().setAttribute("errorHabitacion", "No se puede eliminar una habitación con reservas.");
+            response.sendRedirect("SvHabitacion");
+            return;
+        }
 
         // Crear una instancia de Habitacion con el ID proporcionado
         Habitacion habitacionEliminar = new Habitacion();

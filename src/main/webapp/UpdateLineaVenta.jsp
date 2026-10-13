@@ -1,36 +1,10 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<link rel="stylesheet" type="text/css" href="dist/css/styles.css"/>
-<script type="text/javascript" src="dist/js/funtions.js"/></script>
-
-<form class="miform" name="formReserva" action="${pageContext.request.contextPath}/SvVenta?accion=update" method="post" id="clearReserva">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-    <h1>ACTUALIZAR LINEA DE COMPRA</h1>
-
-    <label for="posicion">ID:</label>
-    <input type="text" id="posicion" name="posicion" required value="${posicion}">
-    <br>
-
-    <label for="producto_name">Producto:</label>
-    <input type="text" id="producto_name" name="producto_name" value ="<c:out value='${lineaVenta.producto.nombre}'/>" readonly="true">
-    <br>
-
-    <label for="pcompra">Precio Venta:</label>
-    <input type="text" id="pcompra" name="pcompra" value ="${lineaVenta.precioUnitario}" readonly="true">
-    <br>
-
-    <div class="input-group flex-nowrap">
-        <span class="input-group-text" id="addon-wrapping">Cantidad</span>
-        <input type="text" class="form-control" placeholder="Ejemplo: 5" aria-label="Username" aria-describedby="addon-wrapping" name="cantidad" value ="${lineaVenta.cantidad}" >
-    </div>
-
-    <input type="submit" value="Actualizar">
-    <button type="button" class="cancel" onclick="cancelUpdate()">Cancelar</button>
-</form>
+<header class="page-header"><div><span class="page-kicker">Ventas · Edición</span><h1>Editar línea de venta</h1><p>Modifica la cantidad del producto seleccionado.</p></div><div class="page-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvVenta"><i class="fas fa-arrow-left"></i> Volver</a></div></header>
+<c:if test="${not empty error}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${error}"/></span></div></c:if>
+<section class="form-surface" style="max-width:880px"><div class="kicker-line"></div><form action="${pageContext.request.contextPath}/SvVenta?accion=update" method="post"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><div class="form-grid"><div class="field"><label for="posicion">Posición</label><input id="posicion" name="posicion" type="text" value="${posicion}" readonly></div><div class="field"><label for="producto_name">Producto</label><input id="producto_name" name="producto_name" type="text" value="<c:out value='${lineaVenta.producto.nombre}'/>" readonly></div><div class="field"><label for="pcompra">Precio unitario · S/</label><input id="pcompra" name="pcompra" type="text" value="${lineaVenta.precioUnitario}" readonly></div><div class="field"><label for="cantidad">Cantidad</label><input id="cantidad" name="cantidad" type="number" min="1" value="${lineaVenta.cantidad}" required></div></div><div class="form-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvVenta">Cancelar</a><button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Guardar cambios</button></div></form></section>
 <%@include file="components/footer.jsp"%>

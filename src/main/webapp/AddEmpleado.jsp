@@ -1,41 +1,10 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="components/auth.jsp"%>
-
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%@include file="components/head.jsp"%>
 <%@include file="components/sidebar.jsp"%>
 <%@include file="components/navBar.jsp"%>
-
-<script type="text/javascript" src="dist/js/funtions.js"/></script>
-
-<div class="card">
-    <div class="card-body">
-        <form name="formProducto" action="${pageContext.request.contextPath}/SvAddEmpleado?accion=add" method="post" id="clearEmpleado">
-<input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
-            <h1>AGREGAR EMPLEADO</h1>
-
-            <label for="producto" class="form-label">DNI:</label>
-            <input type="text" id="dniE" name="dniE" class="form-control" required>
-            <br>
-            <label for="producto">Nombre:</label>
-            <input type="text" id="nombreE" name="nombreE" class="form-control" required>
-            <br>
-
-            <label for="pventa">Apellido:</label>
-            <input type="text" id="apellidoE" name="apellidoE" class="form-control" required>
-            <br>
-
-            <label for="pcompra">Usuario:</label>
-            <input type="text" id="usuarioE" name="usuarioE" class="form-control" required>
-            <br>      
-
-            <label for="pcompra">Clave:</label>
-            <input type="password" id="claveE" name="claveE" class="form-control" autocomplete="new-password" required>
-            <br> 
-            <input class="btn btn-primary" type="submit" value="Enviar">
-            <button class="btn btn-danger" type="button" class="cancel" onclick="cancelUpdate()">Cancelar</button>
-        </form>
-    </div>
-</div>
-
+<header class="page-header"><div><span class="page-kicker">Equipo · Nuevo</span><h1>Nuevo empleado</h1><p>Crea un acceso para una persona del equipo.</p></div><div class="page-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvEmpleado"><i class="fas fa-arrow-left"></i> Volver</a></div></header>
+<c:if test="${not empty error}"><div class="notice notice-error" role="alert"><i class="fas fa-exclamation-circle"></i><span><c:out value="${error}"/></span></div></c:if>
+<section class="form-surface" style="max-width:880px"><div class="kicker-line"></div><form action="${pageContext.request.contextPath}/SvAddEmpleado?accion=add" method="post"><input type="hidden" name="_csrf" value="${sessionScope.csrfToken}"><div class="form-grid"><div class="field"><label for="dniE">DNI</label><input id="dniE" name="dniE" type="text" inputmode="numeric" required></div><div class="field"><label for="nombreE">Nombre</label><input id="nombreE" name="nombreE" type="text" required></div><div class="field"><label for="apellidoE">Apellido</label><input id="apellidoE" name="apellidoE" type="text" required></div><div class="field"><label for="usuarioE">Usuario</label><input id="usuarioE" name="usuarioE" type="text" autocomplete="username" required></div><div class="field"><label for="claveE">Clave</label><input id="claveE" name="claveE" type="password" autocomplete="new-password" required></div></div><div class="form-actions"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/SvEmpleado">Cancelar</a><button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Crear empleado</button></div></form></section>
 <%@include file="components/footer.jsp"%>
