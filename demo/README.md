@@ -2,6 +2,8 @@
 
 Versión estática para explorar los flujos principales sin iniciar GlassFish. Conserva la identidad visual del sistema y permite:
 
+**Demo pública:** [sistema-hostal-delfines.pages.dev](https://sistema-hostal-delfines.pages.dev/)
+
 - Consultar habitaciones y sus próximas reservas.
 - Crear, editar, buscar y cancelar reservas. La tarifa y la comprobación de horarios siguen las reglas principales del sistema Java.
 - Registrar clientes ficticios.
@@ -21,6 +23,8 @@ Abrir `http://localhost:4173/`.
 
 ## Cloudflare Pages
 
-Conectar el repositorio privado mediante la integración de GitHub. Configurar **Root directory** como `demo`, sin comando de compilación y con **Build output directory** `.`. Publicar solo este directorio; no se necesitan Pages Functions, Workers, D1, KV ni variables de entorno. Mantener el plan Free.
+El proyecto `sistema-hostal-delfines` usa **Direct Upload** en el plan Free. Para publicar una nueva versión, crear un ZIP que contenga en su raíz `index.html`, `styles.css`, `app.js` y `favicon.svg`, y cargarlo en **Workers y Pages → sistema-hostal-delfines → Crear implementación**. El despliegue no está conectado a GitHub: subir cambios al repositorio no actualiza la demo automáticamente.
+
+No se necesitan Pages Functions, Workers, D1, KV ni variables de entorno.
 
 Antes de compartir el enlace, recorrer todos los flujos en escritorio y móvil, comprobar que el botón Reiniciar restaura los datos y verificar que no aparezca ninguna solicitud a una API del sistema.
