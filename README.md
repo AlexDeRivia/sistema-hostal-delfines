@@ -2,6 +2,8 @@
 
 Aplicación web Jakarta EE 10 para administrar reservas, habitaciones, empleados, compras y ventas. Genera un archivo WAR y usa archivos de texto como almacenamiento principal.
 
+La carpeta [`demo/`](demo/README.md) contiene una demo interactiva estática con datos ficticios guardados en el navegador. Puede publicarse por separado; no requiere ejecutar el servidor Java.
+
 ## Requisitos
 
 - JDK 11 o superior y Maven 3.8 o superior para compilar.

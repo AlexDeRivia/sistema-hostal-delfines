@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08283d">
+  <meta name="description" content="Demo interactiva de Sistema Hostal Delfines: reservas, habitaciones, clientes y ventas con datos de ejemplo.">
+  <title>Sistema Hostal Delfines · Demo interactiva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z"/><path d="M9 21v-7h6v7"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18m-13 5 2 2 5-5"/></symbol>
+    <symbol id="i-room" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 12h.01"/><path d="M8 6h8v15H8z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2H3Zm12-14a3 3 0 0 1 0 6m2 2a5 5 0 0 1 4 5v1h-3"/></symbol>
+    <symbol id="i-sale" viewBox="0 0 24 24"><path d="M4 3h16v18l-3-2-3 2-2-2-3 2-2-2-3 2V3Z"/><path d="M8 8h8M8 12h8m-8 4h5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6M20 4v7h-7"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="Hostal Delfines, ir al inicio">
+        <span class="brand-mark">HD</span>
+        <span class="brand-name"><strong>Hostal Delfines</strong><small>Sistema de gestión</small></span>
+      </a>
+      <div class="nav-rule"></div>
+      <nav class="navigation" aria-label="Secciones de la demo">
+        <span class="nav-caption">GENERAL</span>
+        <a class="nav-link" href="#inicio" data-route="inicio"><svg class="icon"><use href="#i-home"></use></svg><span>Inicio</span></a>
+        <span class="nav-caption">RECEPCIÓN</span>
+        <a class="nav-link" href="#reservas" data-route="reservas"><svg class="icon"><use href="#i-calendar"></use></svg><span>Reservas</span></a>
+        <a class="nav-link" href="#habitaciones" data-route="habitaciones"><svg class="icon"><use href="#i-room"></use></svg><span>Habitaciones</span></a>
+        <a class="nav-link" href="#clientes" data-route="clientes"><svg class="icon"><use href="#i-users"></use></svg><span>Clientes</span></a>
+        <span class="nav-caption">COMERCIAL</span>
+        <a class="nav-link" href="#ventas" data-route="ventas"><svg class="icon"><use href="#i-sale"></use></svg><span>Ventas</span></a>
+      </nav>
+      <div class="sidebar-bottom"><span class="tide-mark"></span> Operación junto al mar</div>
+    </aside>
+    <button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Cerrar menú"></button>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="icon-button menu-button" id="menuButton" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#i-menu"></use></svg></button>
+        <div class="topbar-context"><span class="live-dot"></span><span id="topbarTitle">Inicio</span></div>
+        <div class="topbar-actions">
+          <span class="demo-pill">DEMO INTERACTIVA</span>
+          <button class="reset-button" id="resetButton" type="button" aria-label="Reiniciar demo"><svg class="icon"><use href="#i-refresh"></use></svg><span>Reiniciar</span></button>
+        </div>
+      </header>
+      <main class="main" id="main" tabindex="-1"><noscript>Activa JavaScript para explorar la demo interactiva.</noscript></main>
+      <footer class="footer"><span>Hostal Delfines · Sistema de gestión</span><span>Datos ficticios guardados solo en este navegador</span></footer>
+    </div>
+  </div>
+
+  <dialog id="modal" class="modal" aria-labelledby="modalTitle"></dialog>
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
