@@ -256,6 +256,11 @@ function renderSales() {
 }
 function openModal(html) {
   modal.innerHTML = html;
+  modal.querySelector("form")?.addEventListener("submit", event => {
+    event.preventDefault();
+    if (event.target.id === "reservationForm") submitReservation(event.target);
+    if (event.target.id === "clientForm") submitClient(event.target);
+  });
   modal.showModal();
   document.body.classList.add("dialog-open");
   modal.querySelector("input, select, button")?.focus();
@@ -429,13 +434,6 @@ function onAction(action, element) {
 document.addEventListener("click", event => {
   const actionElement = event.target.closest("[data-action]");
   if (actionElement) onAction(actionElement.dataset.action, actionElement);
-});
-document.addEventListener("submit", event => {
-  if (event.target.id === "reservationForm") {
-    event.preventDefault(); submitReservation(event.target);
-  } else if (event.target.id === "clientForm") {
-    event.preventDefault(); submitClient(event.target);
-  }
 });
 document.addEventListener("input", event => {
   if (event.target.id === "reservationSearch") { reservationFilter.search = event.target.value; renderReservationRows(); }
