@@ -1,5 +1,5 @@
         </main>
-        <footer class="app-footer"><span>Hostal Delfines</span><span>Sistema de gestión</span></footer>
+        <footer class="app-footer"><span>Hostal Delfines</span><span>© 2026 Alex Alcantara</span></footer>
     </div>
 </div>
 <button class="scroll-top" type="button" aria-label="Volver arriba" data-scroll-top><i class="fas fa-arrow-up" aria-hidden="true"></i></button>

@@ -116,3 +116,7 @@ python -m http.server 4173 --directory demo
 Visita `http://127.0.0.1:4173/`. No necesita GlassFish, MySQL, claves ni variables de entorno.
 
 La [demo publicada](https://sistema-hostal-delfines.pages.dev/) usa **Cloudflare Pages Direct Upload**. No está conectada a GitHub: subir cambios al repositorio no actualiza automáticamente el sitio. El procedimiento para publicar una nueva versión está en la [guía de la demo](demo/README.md).
+
+## Uso del código
+
+© 2026 Alex Alcantara. El código original de este proyecto se publica para consulta y evaluación. No se concede una licencia para reutilizarlo, modificarlo o distribuirlo sin autorización del autor. Para otros usos, contacta al autor. Los componentes de terceros conservan sus respectivas licencias.
