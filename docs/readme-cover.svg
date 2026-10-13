@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">Sistema Hostal Delfines</title>
+  <desc id="desc">Portada marina del sistema de gestión del hostal.</desc>
+  <defs>
+    <clipPath id="frame"><rect width="1200" height="320" rx="18"/></clipPath>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b354d"/>
+      <stop offset="1" stop-color="#08283d"/>
+    </linearGradient>
+    <linearGradient id="horizon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#75c4d6" stop-opacity="0"/>
+      <stop offset="0.48" stop-color="#75c4d6" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#75c4d6" stop-opacity="0.16"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="320" fill="url(#sea)"/>
+    <path d="M0 255 C188 203 286 304 456 253 S762 198 1200 260 V320 H0Z" fill="#10445f"/>
+    <path d="M0 276 C180 224 308 309 488 270 S830 225 1200 289 V320 H0Z" fill="#125c78" opacity=".55"/>
+    <path d="M0 294 C175 250 314 319 526 289 S917 256 1200 305 V320 H0Z" fill="#168aa7" opacity=".33"/>
+    <path d="M595 188 H1170" stroke="url(#horizon)" stroke-width="1.5"/>
+    <circle cx="1000" cy="104" r="60" fill="#b4e5e9" opacity=".92"/>
+    <circle cx="1000" cy="104" r="83" fill="none" stroke="#9dd9e7" stroke-opacity=".17"/>
+    <circle cx="1000" cy="104" r="107" fill="none" stroke="#9dd9e7" stroke-opacity=".12"/>
+    <path d="M785 123 C842 106 885 134 937 120 S1050 108 1135 125" fill="none" stroke="#d0f0f2" stroke-opacity=".66" stroke-width="2"/>
+    <path d="M760 145 C831 129 881 153 938 141 S1055 133 1160 150" fill="none" stroke="#a5deea" stroke-opacity=".35" stroke-width="1.5"/>
+    <rect x="54" y="49" width="48" height="48" rx="9" fill="none" stroke="#9dd9e7" stroke-width="1.4"/>
+    <text x="78" y="80" fill="#f5fafb" font-family="Georgia, serif" font-size="23" font-weight="bold" text-anchor="middle">HD</text>
+    <text x="120" y="68" fill="#a7dce7" font-family="Arial, sans-serif" font-size="11" font-weight="bold" letter-spacing="3">SISTEMA DE GESTIÓN</text>
+    <text x="54" y="161" fill="#ffffff" font-family="Georgia, serif" font-size="52" font-weight="bold">Hostal Delfines</text>
+    <text x="56" y="198" fill="#c3e3ea" font-family="Arial, sans-serif" font-size="18">Recepción, reservas y operación comercial junto al mar.</text>
+    <path d="M56 226 H162" stroke="#9dd9e7" stroke-width="2"/>
+    <text x="56" y="254" fill="#9dd9e7" font-family="Arial, sans-serif" font-size="11" font-weight="bold" letter-spacing="2">JAKARTA EE  ·  DEMO INTERACTIVA</text>
+  </g>
+</svg>
